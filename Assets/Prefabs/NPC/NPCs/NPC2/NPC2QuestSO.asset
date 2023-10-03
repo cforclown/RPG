@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69794dd021e4c674babd00131adca7ce, type: 3}
+  m_Name: NPC2QuestSO
+  m_EditorClassIdentifier: 
+  <Id>k__BackingField: kill-commander-zombie-quest
+  <QuestTitle>k__BackingField: NPC2 hate Commander Zombie
+  <QuestBackStory>k__BackingField:
+  - Yo wassap. wanna hear something?
+  - If you can kill 2 Commander Zombie i will give you reward.
+  <QuestDesc>k__BackingField: Kill Commander Zombie, On area 1
+  <QuestAcceptedTexts>k__BackingField:
+  - Many of Commander Zombie is on area 1.
+  - Get back to me when you done.
+  <QuestCompletedTexts>k__BackingField:
+  - Thank you so much.
+  - Really appriciate this. here is your reward
+  <QuestGoal>k__BackingField: {fileID: 11400000, guid: ea6f333d2fee3484dbe2cc7e9e11c263,
+    type: 2}
+  <ExpReward>k__BackingField: 20

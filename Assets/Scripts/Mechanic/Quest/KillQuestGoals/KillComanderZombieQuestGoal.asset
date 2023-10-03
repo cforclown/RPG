@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71cba239867d43e4fb1e841e9cc93703, type: 3}
+  m_Name: KillComanderZombieQuestGoal
+  m_EditorClassIdentifier: 
+  <Desc>k__BackingField: Kill 2 Commander Zombie
+  <RequiredAmount>k__BackingField: 2
+  Enemy: {fileID: 11400000, guid: 3200b0c19a27f3041a03620d9694e9fa, type: 2}

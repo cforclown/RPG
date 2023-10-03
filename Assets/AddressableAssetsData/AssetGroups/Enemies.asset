@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Enemies
+  m_EditorClassIdentifier: 
+  m_GroupName: Enemies
+  m_Data:
+    m_SerializedData: []
+  m_GUID: e05a5cf5bd0625e4990fa818b20f8eaf
+  m_SerializeEntries:
+  - m_GUID: b882b3324d21f694fa67328950b97cf3
+    m_Address: SoldierZombieSprite.png
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Enemy
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 94c675931aab11d44bfee3626df46653
+    m_Address: HulkMutantPrefab.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Enemy
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3d0072bcec850a248a86115c2759bdea
+    m_Address: HulkMutantSprite.png
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Enemy
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eb68cd04eee46034fb1e925c19810206
+    m_Address: CommanderZombiePrefab.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Enemy
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7a7ec00b705d6c74fb0614457b82da3a
+    m_Address: CommanderZombieSprite.png
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Enemy
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a525ee5c78545fb41aa126642552de13
+    m_Address: SoldierZombiePrefab.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Enemy
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: e37a8ff5d3c64a847a0544b0b75f0c63, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: cf75f263120c94745b16dd5a0e052c54, type: 2}
+    - {fileID: 11400000, guid: d6214f3c4e34de34dbc2014da5d3512e, type: 2}

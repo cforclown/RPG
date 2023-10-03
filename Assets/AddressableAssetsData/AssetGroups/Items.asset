@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Items
+  m_EditorClassIdentifier: 
+  m_GroupName: Items
+  m_Data:
+    m_SerializedData: []
+  m_GUID: e71702a1a979b6a41838b6290830e6c6
+  m_SerializeEntries:
+  - m_GUID: bc220816acf84a049b63279fa721883f
+    m_Address: LongSwordPrefab.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Item
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 35017900f648cb643b5ac2349293a502
+    m_Address: KnightHelmPrefab.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Item
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1a5a360b9d355f54781ffce26652682f
+    m_Address: SpartanHelmPrefab.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Item
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1952de890d5a91c42a00f5b6f3f09961
+    m_Address: KnightShoulderArmorPrefab.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Item
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 592bf38394fe6f34fa759d8845625934
+    m_Address: BodyArmor1Prefab.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Item
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5d205729dff345b4d97ceda78f1ca7e4
+    m_Address: Mace1Prefab.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Item
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: e37a8ff5d3c64a847a0544b0b75f0c63, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 48f391ab6562ab64f8ad94abfcec7865, type: 2}
+    - {fileID: 11400000, guid: 8a3d181e11bd62e43982d3e51bbf96c0, type: 2}

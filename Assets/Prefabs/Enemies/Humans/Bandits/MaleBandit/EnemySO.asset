@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef3dc82d46671084c89f3d32f12b314f, type: 3}
+  m_Name: EnemySO
+  m_EditorClassIdentifier: 
+  <AssetId>k__BackingField: MaleBandit
+  <Name>k__BackingField: Male Bandit
+  <Type>k__BackingField: 2
+  <Race>k__BackingField: 0
+  <Behaviour>k__BackingField: 1
+  <IdleBehaviour>k__BackingField: 1
+  <BaseMaxHP>k__BackingField: 120
+  <MaxHPPerLevel>k__BackingField: 10
+  <BaseHPRegen>k__BackingField: 1
+  <HPRegenPerLevel>k__BackingField: 0.1
+  <BaseMaxMP>k__BackingField: 0
+  <MaxMPPerLevel>k__BackingField: 0
+  <BaseMPRegen>k__BackingField: 0
+  <MPRegenPerLevel>k__BackingField: 0
+  <BaseMvSpd>k__BackingField: 5
+  <MvSpdPerLevel>k__BackingField: 0.1
+  <BaseWalkSpd>k__BackingField: 2.5
+  <WalkSpdPerLevel>k__BackingField: 0
+  <BaseDamage>k__BackingField: 10
+  <DamagePerLevel>k__BackingField: 2
+  <AggroRange>k__BackingField: 5
+  <BaseAttackRange>k__BackingField: 2
+  <BaseKilledExp>k__BackingField: 6
+  <KilledExpPerLevel>k__BackingField: 1
