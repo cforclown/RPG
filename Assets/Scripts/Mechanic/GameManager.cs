@@ -50,7 +50,8 @@ public class GameManager : MonoBehaviour {
       10,
       inventory,
       equipments,
-      quests
+      quests,
+      new PlayerSkills()
     ));
 
     return playerObj.GetComponent<Player>();

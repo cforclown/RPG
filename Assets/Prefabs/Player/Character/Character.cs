@@ -1,17 +1,32 @@
 using System;
 using UnityEngine;
 
+public enum Genders {
+  MALE = 0,
+  FEMALE = 1
+}
+
+public enum JobTypes {
+  Swordsman = 0,
+  Knight = 1,
+  Spellcaster = 2
+}
+
 [Serializable]
 public class Character {
   public string Name { get; private set; }
-  public int Strength { get; private set; }
-  public int Agility { get; private set; }
-  public int Intelligence { get; private set; }
+  public Genders Gender { get; private set; }
+  public JobTypes Job { get; private set; }
 
-  public int Exp { get; private set; }
   public int Level { get; private set; } = 1;
   public int Gold { get; private set; }
   public int StatsPoint { get; private set; }
+  public int SkillPoint { get; private set; }
+  public int Exp { get; private set; }
+
+  public int Strength { get; private set; }
+  public int Agility { get; private set; }
+  public int Intelligence { get; private set; }
 
   public int BaseMaxHP { get; private set; } = 100;
   public int MaxHPPerStrength { get; private set; } = 10;
@@ -48,7 +63,7 @@ public class Character {
   public PlayerInventory Inventory { get; private set; }
   public PlayerEquipment Equipment { get; private set; }
   public PlayerQuests Quests { get; private set; }
-
+  public PlayerSkills Skills { get; private set; }
 
   public Character(
     string name,
@@ -57,7 +72,8 @@ public class Character {
     int @int,
     PlayerInventory inventory,
     PlayerEquipment equipment,
-    PlayerQuests quests
+    PlayerQuests quests,
+    PlayerSkills skills
   ) {
     Name = name;
 
@@ -74,6 +90,7 @@ public class Character {
     Inventory = inventory;
     Equipment = equipment;
     Quests = quests;
+    Skills = skills;
   }
 
   public void GetHit(int damage) {

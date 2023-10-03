@@ -4,10 +4,10 @@ public class HitDamageTextManager : MonoBehaviour {
   [SerializeField] private GameObject hitDamageTextPrefab;
 
   private void Start() {
-    CombatEvents.OnAttacktHit += ShowHitDamage;
+    CombatEvents.OnAttacktHit += DisplayHitDamage;
   }
 
-  private void ShowHitDamage(Transform posRef, int damage) {
+  private void DisplayHitDamage(Transform posRef, int damage) {
     GameObject hitDamageTextObj = Instantiate(hitDamageTextPrefab, transform);
     HitDamageText hitDamageText = hitDamageTextObj.GetComponent<HitDamageText>();
     hitDamageText.Init(damage, posRef);

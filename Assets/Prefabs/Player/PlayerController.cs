@@ -44,7 +44,7 @@ public class PlayerController : MonoBehaviour {
         }
       }
     }
-    if (NPCDialogUIManager.I.IsShow && moveToNPCAndInteract == null) {
+    if (NPCDialogUIManager.I.IsOpen && moveToNPCAndInteract == null) {
       return;
     }
     if (moveToNPCAndInteract != null) {

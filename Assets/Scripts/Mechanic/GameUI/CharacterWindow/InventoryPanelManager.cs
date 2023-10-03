@@ -11,22 +11,18 @@ public class InventoryPanelManager : MonoBehaviour {
 
   public bool IsDragging { get; private set; }
 
-  private GameObject container;
-
   private List<InventoryTile> tiles;
 
   private void Awake() {
     I = this;
 
-    container = transform.GetChild(0).gameObject;
-
     tiles = new List<InventoryTile>(PlayerInventory.SIZE);
-    int tileGameObjCount = container.transform.childCount;
+    int tileGameObjCount = transform.childCount;
     if (tileGameObjCount < PlayerInventory.SIZE) {
       Logger.Err(this.name, "Inventory container child count is not same with defined size");
     }
     for (int x = 0; x < tileGameObjCount; x++) {
-      InventoryTile tile = container.transform.GetChild(x).GetComponent<InventoryTile>();
+      InventoryTile tile = transform.GetChild(x).GetComponent<InventoryTile>();
       tile.SetLocation(x);
       tiles.Add(tile);
     }

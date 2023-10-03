@@ -1,7 +1,7 @@
 public class QuestEvents {
   public delegate void QuestEventHandler(QuestSO quest);
   public static event QuestEventHandler OnQuestCompleted;
-  public static event QuestEventHandler OnQuestDone;
+  public static event QuestEventHandler OnQuestFinished;
 
   public delegate void QuestGoalEventHandler(QuestGoal questGoal);
   public static event QuestGoalEventHandler OnQuestProgress;
@@ -15,12 +15,12 @@ public class QuestEvents {
     OnQuestCompleted(quest);
   }
 
-  public static void QuestDone(QuestSO quest) {
-    if (OnQuestDone == null) {
+  public static void QuestFinished(QuestSO quest) {
+    if (OnQuestFinished == null) {
       return;
     }
 
-    OnQuestDone(quest);
+    OnQuestFinished(quest);
   }
 
   public static void QuestGoalCompleted(QuestGoal questGoal) {

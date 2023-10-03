@@ -15,6 +15,7 @@ public class PlayerAnimStateController : MonoBehaviour {
   private int isBasicAttack1Hash;
   private int isBasicAttack2Hash;
   private int isDeadHash;
+  private int isSkill1Hash;
 
   // animation state variables -----------------
   private bool isRunning = false;
@@ -52,6 +53,15 @@ public class PlayerAnimStateController : MonoBehaviour {
       animator.SetBool(isDeadHash, value);
     }
   }
+
+  private bool isSkill1 = false;
+  public bool IsSkill1 {
+    get { return isSkill1; }
+    private set {
+      isSkill1 = value;
+      animator.SetBool(isSkill1Hash, value);
+    }
+  }
   // ------------------------------------------
 
 
@@ -69,6 +79,7 @@ public class PlayerAnimStateController : MonoBehaviour {
     isBasicAttack1Hash = Animator.StringToHash("IsBasicAttack1");
     isBasicAttack2Hash = Animator.StringToHash("IsBasicAttack2");
     isDeadHash = Animator.StringToHash("IsDead");
+    isSkill1Hash = Animator.StringToHash("IsSkill1");
 
     EquipmentEvents.OnItemEquipped += OnEquippedItemRemoved;
   }

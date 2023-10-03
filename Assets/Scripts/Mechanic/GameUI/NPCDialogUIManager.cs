@@ -16,7 +16,7 @@ public class NPCDialogUIManager : MonoBehaviour {
   [SerializeField] private Button refuseQuestBtn;
   [SerializeField] private Button completeQuestBtn;
 
-  public bool IsShow { get; private set; } = false;
+  public bool IsOpen { get; private set; } = false;
 
   private int currentTextPointer;
 
@@ -30,15 +30,15 @@ public class NPCDialogUIManager : MonoBehaviour {
   }
 
   void Start() {
-    NPCEvents.OnNPCInteractionStarted += Show;
-    NPCEvents.OnNPCInteractionEnded += (NPC npc) => Hide();
+    NPCEvents.OnNPCInteractionStarted += Open;
+    NPCEvents.OnNPCInteractionEnded += (NPC npc) => Close();
 
     dialogPanelContainerBtn.onClick.AddListener(OnNextDialog);
     acceptQuestBtn.onClick.AddListener(OnAcceptQuestBtnClick);
     refuseQuestBtn.onClick.AddListener(OnRefuseBtnClick);
     completeQuestBtn.onClick.AddListener(OnCompleteQuestBtnClick);
 
-    Hide();
+    Close();
   }
 
   // Update is called once per frame
@@ -46,8 +46,8 @@ public class NPCDialogUIManager : MonoBehaviour {
 
   }
 
-  private void Show(NPC npc) {
-    IsShow = true;
+  private void Open(NPC npc) {
+    IsOpen = true;
     this.npc = npc;
 
     container.SetActive(true);
@@ -61,8 +61,8 @@ public class NPCDialogUIManager : MonoBehaviour {
     OnNextDialog();
   }
 
-  private void Hide() {
-    IsShow = false;
+  private void Close() {
+    IsOpen = false;
     container.SetActive(false);
   }
 
@@ -122,7 +122,7 @@ public class NPCDialogUIManager : MonoBehaviour {
   }
 
   private void OnCompleteQuestBtnClick() {
-    QuestEvents.QuestDone(npc.data.Quest);
+    QuestEvents.QuestFinished(npc.data.Quest);
     NPCEvents.PlayerInteractionWithNPCDone(npc);
   }
 }

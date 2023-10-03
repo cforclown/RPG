@@ -7,7 +7,7 @@ public class QuestsPanelManager : MonoBehaviour {
   [SerializeField] private RectTransform scrollViewContent;
   [SerializeField] private GameObject itemPrefab;
 
-  private bool isShow = false;
+  private bool isOpen = false;
 
   private List<QuestWindowItem> items;
 
@@ -18,38 +18,38 @@ public class QuestsPanelManager : MonoBehaviour {
 
   private void Start() {
     popupBtn.onClick.AddListener(() => {
-      if (isShow) {
-        Hide();
+      if (isOpen) {
+        Close();
       }
       else {
-        Show();
+        Open();
       }
     });
-    Hide();
+    Close();
 
     NPCEvents.OnPlayerAcceptNPCQuest += OnPlayerAcceptedNPCQuestEvent;
-    QuestEvents.OnQuestDone += OnPlayerFinishedQuest;
+    QuestEvents.OnQuestFinished += OnPlayerFinishedQuest;
   }
 
   // Update is called once per frame
   private void Update() {
     if (Input.GetKeyUp(KeyCode.Q)) {
-      if (!isShow) {
-        Show();
+      if (!isOpen) {
+        Open();
       }
       else {
-        Hide();
+        Close();
       }
     }
   }
 
   private void OnDestroy() {
     NPCEvents.OnPlayerAcceptNPCQuest -= OnPlayerAcceptedNPCQuestEvent;
-    QuestEvents.OnQuestDone -= OnPlayerFinishedQuest;
+    QuestEvents.OnQuestFinished -= OnPlayerFinishedQuest;
   }
 
   private void OnPlayerAcceptedNPCQuestEvent(NPC npc) {
-    if (!isShow) {
+    if (!isOpen) {
       return;
     }
 
@@ -57,7 +57,7 @@ public class QuestsPanelManager : MonoBehaviour {
   }
 
   private void OnPlayerFinishedQuest(QuestSO quest) {
-    if (!isShow) {
+    if (!isOpen) {
       return;
     }
 
@@ -70,12 +70,12 @@ public class QuestsPanelManager : MonoBehaviour {
     Destroy(item.gameObject);
   }
 
-  public void Show() {
+  public void Open() {
     if (Player.I == null) {
       return;
     }
 
-    isShow = true;
+    isOpen = true;
     container.SetActive(true);
 
     ClearItems();
@@ -85,8 +85,8 @@ public class QuestsPanelManager : MonoBehaviour {
     }
   }
 
-  public void Hide() {
-    isShow = false;
+  public void Close() {
+    isOpen = false;
     container.SetActive(false);
   }
 

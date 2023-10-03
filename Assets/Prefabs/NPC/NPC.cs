@@ -24,7 +24,7 @@ public class NPC : MonoBehaviour {
       }
       OnQuestCompleted();
     };
-    QuestEvents.OnQuestDone += (QuestSO quest) => {
+    QuestEvents.OnQuestFinished += (QuestSO quest) => {
       if (!QuestAccepted || quest?.Id != data.Quest?.Id) {
         return;
       }

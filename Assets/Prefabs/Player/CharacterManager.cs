@@ -57,7 +57,9 @@ public class CharacterManager : MonoBehaviour {
 
     CombatEvents.OnEnemyDeath += CombatEventsOnKillingEnemy;
     NPCEvents.OnPlayerAcceptNPCQuest += OnQuestAccepted;
-    QuestEvents.OnQuestDone += OnQuestDone;
+    QuestEvents.OnQuestFinished += OnQuestDone;
+    PlayerEvents.OnPlayerClaimedSkill += OnPlayerClaimedSkill;
+    PlayerEvents.OnPlayerSkillLevelUp += OnSkillLevelUp;
   }
 
   private void OnDestroy() {
@@ -66,7 +68,9 @@ public class CharacterManager : MonoBehaviour {
 
     CombatEvents.OnEnemyDeath -= CombatEventsOnKillingEnemy;
     NPCEvents.OnPlayerAcceptNPCQuest -= OnQuestAccepted;
-    QuestEvents.OnQuestDone -= OnQuestDone;
+    QuestEvents.OnQuestFinished -= OnQuestDone;
+    PlayerEvents.OnPlayerClaimedSkill -= OnPlayerClaimedSkill;
+    PlayerEvents.OnPlayerSkillLevelUp -= OnSkillLevelUp;
   }
 
   public void Init(Character player) {
@@ -129,6 +133,14 @@ public class CharacterManager : MonoBehaviour {
   private void OnQuestDone(QuestSO quest) {
     GrantExp(quest.ExpReward);
     Stats.Quests.RemoveQuest(quest);
+  }
+
+  private void OnPlayerClaimedSkill(SkillSO skill) {
+    Stats.Skills.ClaimSkill(skill);
+  }
+
+  private void OnSkillLevelUp(SkillSO skill) {
+    Stats.Skills.SkillLevelUp(skill);
   }
 
   public void IncreaseStrength() {

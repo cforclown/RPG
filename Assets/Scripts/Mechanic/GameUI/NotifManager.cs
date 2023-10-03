@@ -7,7 +7,7 @@ public class NotifManager : MonoBehaviour {
   private TextMeshProUGUI text;
 
   private void Awake() {
-    QuestEvents.OnQuestDone += ShowQuestDoneNotif;
+    QuestEvents.OnQuestFinished += DisplayQuestFinishedNotif;
   }
 
   // Start is called before the first frame update
@@ -18,7 +18,7 @@ public class NotifManager : MonoBehaviour {
     container.SetActive(false);
   }
 
-  private void ShowQuestDoneNotif(QuestSO quest) {
+  private void DisplayQuestFinishedNotif(QuestSO quest) {
     text.color = new Color(255, 255, 255, 1f);
     text.text = string.Format(
       "Quest <color=#ffa200>{0}</color> completed\nReward <color=#ffa200>{1}</color> Exp",

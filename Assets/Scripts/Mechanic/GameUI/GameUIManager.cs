@@ -48,7 +48,7 @@ public class GameUIManager : MonoBehaviour {
     Canvas.planeDistance = 0.5f;
     Canvas.worldCamera = Camera.main;
 
-    CombatEvents.OnEnemyHitPlayer += (Enemy enemy, Character player) => ShowGetHitIndicator();
+    CombatEvents.OnEnemyHitPlayer += (Enemy enemy, Character player) => DisplayGetHitIndicator();
     NPCEvents.OnNPCInteractionStarted += (NPC npc) => { IsHide = true; };
     NPCEvents.OnNPCInteractionEnded += (NPC npc) => { IsHide = false; };
   }
@@ -61,7 +61,7 @@ public class GameUIManager : MonoBehaviour {
     return Canvas;
   }
 
-  private void ShowGetHitIndicator() {
+  private void DisplayGetHitIndicator() {
     Instantiate(GitHitBloodPrefab, GetHitIndicatorContainer);
   }
 

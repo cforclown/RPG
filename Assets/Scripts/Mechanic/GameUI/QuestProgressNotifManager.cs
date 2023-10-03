@@ -7,7 +7,7 @@ public class QuestProgressNotifManager : MonoBehaviour {
   private TextMeshProUGUI progressText;
 
   private void Awake() {
-    QuestEvents.OnQuestProgress += Show;
+    QuestEvents.OnQuestProgress += Display;
   }
 
   // Start is called before the first frame update
@@ -18,7 +18,7 @@ public class QuestProgressNotifManager : MonoBehaviour {
     container.SetActive(false);
   }
 
-  private void Show(QuestGoal questGoal) {
+  private void Display(QuestGoal questGoal) {
     progressText.color = new Color(255, 255, 255, 1f);
     progressText.text = questGoal.GetProgressText();
     container.SetActive(true);

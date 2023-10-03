@@ -9,7 +9,7 @@ public class EnemyHPManager : MonoBehaviour {
   private RectTransform rt;
   private float? containerWidth = null;
 
-  private bool isShow = false;
+  private bool IsShow = false;
   private float showTimeCounter = 0f;
   private const float showTimeMax = 5f;
 
@@ -26,7 +26,7 @@ public class EnemyHPManager : MonoBehaviour {
       // if already showed, that mean the hp bar is for enemy that player hit
       // if we call function Show(), it will replaced hp bar for enemy that hit the player, we dont want that
       // because we prioritize hp bar for enemy that player hit
-      if (isShow) {
+      if (IsShow) {
         return;
       }
 
@@ -42,7 +42,7 @@ public class EnemyHPManager : MonoBehaviour {
       containerWidth = RectTransformUtility.PixelAdjustRect(rt, GameUIManager.I.GetCanvas()).width;
     }
 
-    if (isShow && showTimeCounter > showTimeMax) {
+    if (IsShow && showTimeCounter > showTimeMax) {
       Hide();
     }
     else {
@@ -58,13 +58,13 @@ public class EnemyHPManager : MonoBehaviour {
       return;
     }
 
-    isShow = true;
+    IsShow = true;
     showTimeCounter = 0f;
     container.SetActive(true);
   }
 
   private void Hide() {
-    isShow = false;
+    IsShow = false;
     container.SetActive(false);
   }
 
