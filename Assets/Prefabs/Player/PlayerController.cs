@@ -21,10 +21,12 @@ public class PlayerController : MonoBehaviour {
     animController = GetComponent<PlayerAnimStateController>();
     playerInput = GetComponent<PlayerInput>();
     characterManager = GetComponent<CharacterManager>();
+
+    ControllerManager.OnBasicAttackPressed += BasicAttack;
   }
 
-  void Start() {
-    GameUIManager.I.BasicAttackBtn.onClick.AddListener(BasicAttack);
+  private void OnDestroy() {
+    ControllerManager.OnBasicAttackPressed -= BasicAttack;
   }
 
   // Update is called once per frame

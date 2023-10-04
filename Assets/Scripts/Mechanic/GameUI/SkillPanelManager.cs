@@ -27,6 +27,17 @@ public class SkillPanelManager : MonoBehaviour {
     Close();
   }
 
+  private void Update() {
+    if (Input.GetKeyUp(KeyCode.K)) {
+      if (IsOpen) {
+        Close();
+      }
+      else {
+        Open();
+      }
+    }
+  }
+
   private void Open() {
     if (Player.I == null) {
       return;
@@ -43,7 +54,7 @@ public class SkillPanelManager : MonoBehaviour {
   }
 
   private void Init(Character character) {
-    jobText.text = string.Format("{0} ({1})", GetJobName(character.Job), character.SkillPoint > 0 ? character.SkillPoint : "");
+    jobText.text = string.Format("{0} {1}", GetJobName(character.Job), character.SkillPoint > 0 ? string.Format("({0})", character.SkillPoint) : "");
   }
 
   private string GetJobName(JobTypes job) {

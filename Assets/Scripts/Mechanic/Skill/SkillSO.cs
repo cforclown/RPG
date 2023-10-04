@@ -30,9 +30,10 @@ public class SkillSO : ScriptableObject, ISkill {
       Damage = BaseDamage;
       return;
     }
-
     Damage += Damage + (int)(Damage * DamageIncreasePerLevel);
   }
+
+  public SkillSO Clone() => ((ISkill)this).Clone() as SkillSO;
 
   object System.ICloneable.Clone() => (object)this.MemberwiseClone();
 }

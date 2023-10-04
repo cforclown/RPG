@@ -24,12 +24,6 @@ public class GameUIManager : MonoBehaviour {
     }
   }
 
-  [SerializeField] private HP_MP_EXP_Manager hpMpExpManager;
-  [SerializeField] private HitDamageTextManager hitDamageTextManager;
-  [SerializeField] private EnemyHPManager enemyHpManager;
-
-  [SerializeField] public Button BasicAttackBtn;
-
   [SerializeField] public Transform GetHitIndicatorContainer;
   [SerializeField] private GameObject GitHitBloodPrefab;
 

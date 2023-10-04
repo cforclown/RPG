@@ -1,6 +1,7 @@
 public class PlayerEvents {
   public delegate void PlayerEventHandler(Character player);
   public static event PlayerEventHandler OnPlayerStatsUpdated;
+  public static event PlayerEventHandler OnPlayerDied;
 
   public static void PlayerStatsUpdated(Character player) {
     if (OnPlayerStatsUpdated == null) {
@@ -10,23 +11,22 @@ public class PlayerEvents {
     OnPlayerStatsUpdated(player);
   }
 
-  public delegate void PlayerSkillEventHandler(SkillSO skill);
-  public static event PlayerSkillEventHandler OnPlayerClaimedSkill;
-  public static event PlayerSkillEventHandler OnPlayerSkillLevelUp;
-
-  public static void PlayerClaimSkill(SkillSO skill) {
-    if (OnPlayerClaimedSkill == null) {
+  public static void PlayerDied(Character player) {
+    if (OnPlayerDied == null) {
       return;
     }
 
-    OnPlayerClaimedSkill(skill);
+    OnPlayerDied(player);
   }
 
-  public static void PlayerSkillLevelUp(SkillSO skill) {
-    if (OnPlayerSkillLevelUp == null) {
+  public delegate void PlayerSkillEventHandler(PlayerSkills playerSkills);
+  public static event PlayerSkillEventHandler OnPlayerSkillsUpdated;
+
+  public static void PlayerSkillsUpdated(PlayerSkills playerSkills) {
+    if (OnPlayerSkillsUpdated == null) {
       return;
     }
 
-    OnPlayerSkillLevelUp(skill);
+    OnPlayerSkillsUpdated(playerSkills);
   }
 }

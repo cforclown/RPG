@@ -3,8 +3,10 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class SkillBtn : MonoBehaviour {
-  private Button btnComponent;
+  public delegate void SkillBtnEventHandler(SkillSO skill);
+  public static event SkillBtnEventHandler OnSkillBtnPressed;
 
+  private Button btnComponent;
   [SerializeField] private TextMeshProUGUI skillLevelText;
   [SerializeField] private Image btnBgImg;
   [SerializeField] private Image skillIconImg;
@@ -14,7 +16,7 @@ public class SkillBtn : MonoBehaviour {
   private Color unclaimedColor = new Color(0.78f, 0.78f, 0.78f);
   private Color claimedColor = new Color(1f, 0.7f, 0.49f);
 
-  [SerializeField] SkillSO skill;
+  [SerializeField] private SkillSO skillData;
 
   private void Awake() {
     btnComponent = GetComponent<Button>();
@@ -22,47 +24,41 @@ public class SkillBtn : MonoBehaviour {
     skillLevelText.gameObject.SetActive(false);
 
     btnComponent.onClick.AddListener(() => {
-      if (!claimed) {
-        ClaimSkill();
+      if (OnSkillBtnPressed == null) {
+        return;
       }
-      else {
-        LevelUpSkill();
-      }
+
+      OnSkillBtnPressed(skillData);
     });
     btnBgImg.color = unclaimedColor;
+    skillIconImg.sprite = skillData.Icon;
+
+    PlayerEvents.OnPlayerSkillsUpdated += Evaluate;
   }
 
-  public void Init(SkillSO skill) {
-    this.skill = skill;
-    if (skill.Level > 0) {
-      claimed = true;
-      btnBgImg.color = claimedColor;
-    }
+  private void Start() {
   }
 
-  private void ClaimSkill() {
-    claimed = true;
-    skill.LevelUp();
-    Evaluate();
-
-    PlayerEvents.PlayerClaimSkill(skill);
+  private void OnDestroy() {
+    PlayerEvents.OnPlayerSkillsUpdated -= Evaluate;
   }
 
-  private void LevelUpSkill() {
-    skill.LevelUp();
-    Evaluate();
-
-    PlayerEvents.PlayerSkillLevelUp(skill);
-  }
-
-  private void Evaluate() {
-    if (!claimed) {
+  private void Evaluate(PlayerSkills playerSkills) {
+    SkillSO skill = playerSkills.Skills.Find(s => s.Id == skillData.Id);
+    if (skill == null) {
+      btnBgImg.color = unclaimedColor;
+      claimed = false;
       return;
     }
 
+    claimed = true;
     skillLevelText.gameObject.SetActive(true);
     skillLevelText.text = string.Format("{0}/{1}", skill.Level, SkillSO.SKILL_MAX_LEVEL);
-    skillLevelText.color = claimedColor;
+    btnBgImg.color = claimedColor;
+
+    if (skill.Level >= SkillSO.SKILL_MAX_LEVEL) {
+      Disable();
+    }
   }
 
   public void Enable() => btnComponent.enabled = true;

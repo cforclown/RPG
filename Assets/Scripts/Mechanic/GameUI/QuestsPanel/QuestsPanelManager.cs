@@ -9,10 +9,10 @@ public class QuestsPanelManager : MonoBehaviour {
 
   private bool isOpen = false;
 
-  private List<QuestWindowItem> items;
+  private List<QuestPanelItem> items;
 
   private void Awake() {
-    items = new List<QuestWindowItem>();
+    items = new List<QuestPanelItem>();
     container = transform.GetChild(0).gameObject;
   }
 
@@ -61,7 +61,7 @@ public class QuestsPanelManager : MonoBehaviour {
       return;
     }
 
-    QuestWindowItem item = items.Find(i => i.Quest.Id == quest.Id);
+    QuestPanelItem item = items.Find(i => i.Quest.Id == quest.Id);
     if (item == null) {
       return;
     }
@@ -80,7 +80,7 @@ public class QuestsPanelManager : MonoBehaviour {
 
     ClearItems();
     foreach (QuestSO quest in Player.I.Character.Stats.Quests.Quests) {
-      QuestWindowItem item = InstantiateQuestWindowItem(quest);
+      QuestPanelItem item = InstantiateQuestWindowItem(quest);
       items.Add(item);
     }
   }
@@ -92,16 +92,16 @@ public class QuestsPanelManager : MonoBehaviour {
 
   public void ClearItems() {
     if (items.Count > 0) {
-      foreach (QuestWindowItem item in items) {
+      foreach (QuestPanelItem item in items) {
         Destroy(item.gameObject);
       }
     }
-    items = new List<QuestWindowItem>();
+    items = new List<QuestPanelItem>();
   }
 
-  public QuestWindowItem InstantiateQuestWindowItem(QuestSO quest) {
+  public QuestPanelItem InstantiateQuestWindowItem(QuestSO quest) {
     GameObject itemObj = Instantiate(itemPrefab, scrollViewContent.transform);
-    QuestWindowItem item = itemObj.GetComponent<QuestWindowItem>();
+    QuestPanelItem item = itemObj.GetComponent<QuestPanelItem>();
     item.Init(quest);
 
     return item;

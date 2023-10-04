@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class QuestWindowItem : MonoBehaviour {
+public class QuestPanelItem : MonoBehaviour {
   [SerializeField] private TextMeshProUGUI questTitle;
   [SerializeField] private TextMeshProUGUI questDesc;
   [SerializeField] private RectTransform questGoalsContainer;

@@ -58,8 +58,7 @@ public class CharacterManager : MonoBehaviour {
     CombatEvents.OnEnemyDeath += CombatEventsOnKillingEnemy;
     NPCEvents.OnPlayerAcceptNPCQuest += OnQuestAccepted;
     QuestEvents.OnQuestFinished += OnQuestDone;
-    PlayerEvents.OnPlayerClaimedSkill += OnPlayerClaimedSkill;
-    PlayerEvents.OnPlayerSkillLevelUp += OnSkillLevelUp;
+    SkillBtn.OnSkillBtnPressed += ClaimSkill;
   }
 
   private void OnDestroy() {
@@ -69,8 +68,7 @@ public class CharacterManager : MonoBehaviour {
     CombatEvents.OnEnemyDeath -= CombatEventsOnKillingEnemy;
     NPCEvents.OnPlayerAcceptNPCQuest -= OnQuestAccepted;
     QuestEvents.OnQuestFinished -= OnQuestDone;
-    PlayerEvents.OnPlayerClaimedSkill -= OnPlayerClaimedSkill;
-    PlayerEvents.OnPlayerSkillLevelUp -= OnSkillLevelUp;
+    SkillBtn.OnSkillBtnPressed -= ClaimSkill;
   }
 
   public void Init(Character player) {
@@ -135,12 +133,14 @@ public class CharacterManager : MonoBehaviour {
     Stats.Quests.RemoveQuest(quest);
   }
 
-  private void OnPlayerClaimedSkill(SkillSO skill) {
-    Stats.Skills.ClaimSkill(skill);
-  }
-
-  private void OnSkillLevelUp(SkillSO skill) {
-    Stats.Skills.SkillLevelUp(skill);
+  private void ClaimSkill(SkillSO skill) {
+    SkillSO currentSkill = Stats.Skills.Skills.Find(s => s.Id == skill.Id);
+    if (currentSkill == null) {
+      currentSkill = skill.Clone();
+      Stats.Skills.Skills.Add(currentSkill);
+    }
+    currentSkill.LevelUp();
+    PlayerEvents.PlayerSkillsUpdated(Stats.Skills);
   }
 
   public void IncreaseStrength() {

@@ -10,17 +10,4 @@ public class PlayerSkills {
   public PlayerSkills(List<SkillSO> skills) {
     Skills = skills;
   }
-
-  public void ClaimSkill(SkillSO skill) {
-    Skills.Add(skill);
-  }
-
-  public void SkillLevelUp(SkillSO skill) {
-    SkillSO currentSkill = Skills.Find(s => s.Id == skill.Id);
-    if (currentSkill == null) {
-      return;
-    }
-
-    currentSkill.LevelUp();
-  }
 }
