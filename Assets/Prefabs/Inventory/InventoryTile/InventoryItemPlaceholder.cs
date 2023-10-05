@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class InventoryTile : MonoBehaviour {
+public class InventoryItemPlaceholder : MonoBehaviour {
   [SerializeField] private Sprite defaultSprite;
   [SerializeField] private Image itemImg;
   [SerializeField] private Image itemImgCopy;
@@ -24,7 +24,7 @@ public class InventoryTile : MonoBehaviour {
         itemImg.gameObject.SetActive(false);
         itemImgCopy.sprite = defaultSprite;
       }
-      DefaultIndicator();
+      SetDefaultColor();
       item = value;
     }
   }
@@ -37,22 +37,24 @@ public class InventoryTile : MonoBehaviour {
   }
 
   private void Start() {
-    DefaultIndicator();
+    SetDefaultColor();
   }
 
   public void SetLocation(int location) {
     Location = location;
   }
 
+  // event trigger
   public void OnBeginDrag() {
     if (Item == null) {
       return;
     }
 
-    DraggingIndicator();
+    SetOnDraggingColor();
     itemImgCopy.gameObject.SetActive(true);
   }
 
+  // event trigger
   public void OnDrag(BaseEventData eventData) {
     if (Item == null) {
       return;
@@ -69,33 +71,46 @@ public class InventoryTile : MonoBehaviour {
 
     itemImgCopy.GetComponent<RectTransform>().position = GameUIManager.I.GetRectTransform().TransformPoint(pos);
     EquipmentPanelManager.I.CheckPlaceholderHover(mousePos, Item);
-    InventoryPanelManager.I.CheckInventoryTileHover(mousePos, Item);
+    InventoryPanelManager.I.CheckPlaceholderHover(mousePos, Item);
   }
 
+  // event trigger
   public void OnEndDrag(BaseEventData eventData) {
     if (Item == null) {
       return;
     }
 
-    DefaultIndicator();
+    SetDefaultColor();
     itemImgCopy.gameObject.SetActive(false);
     itemImgCopy.GetComponent<RectTransform>().position = itemImg.GetComponent<RectTransform>().position;
 
     Vector2 mousePos = ((PointerEventData)eventData).position;
     EquipmentPlaceholder equipmentPlaceholder = EquipmentPanelManager.I.CheckPlaceholderHover(mousePos, Item);
+    // item dragged into equipment placeholder box
     if (equipmentPlaceholder != null) {
       if (equipmentPlaceholder.Item != null) {
-        EquipmentPanelManager.I.UnequipItem(equipmentPlaceholder.PlaceholderType, equipmentPlaceholder.Item);
-        InventoryPanelManager.I.AddItem(equipmentPlaceholder.Item, InventoryPanelManager.I.GetAvailableLocation());
+        InventoryPanelManager.AddItemAction(new InventoryItem(equipmentPlaceholder.Item, InventoryPanelManager.I.GetAvailableLocation()));
+        EquipmentPanelManager.UnequipItemAction(equipmentPlaceholder.Item, equipmentPlaceholder.PlaceholderType);
       }
-      EquipmentPanelManager.I.EquipItem(equipmentPlaceholder.PlaceholderType, Item);
-      InventoryPanelManager.I.RemoveItem(Item, Location);
+      EquipmentPanelManager.EquipItemAction(Item, equipmentPlaceholder.PlaceholderType);
+      InventoryPanelManager.RemoveItemAction(new InventoryItem(Item, Location));
       return;
     }
-    InventoryTile anotherTilePlaceholder = InventoryPanelManager.I.CheckInventoryTileHover(mousePos, Item);
-    if (anotherTilePlaceholder != null) {
-      InventoryPanelManager.I.AddItem(Item, anotherTilePlaceholder.Location);
-      InventoryPanelManager.I.RemoveItem(Item, Location);
+
+    // item dragged into another inventory placeholder
+    InventoryItemPlaceholder anotherPlaceholder = InventoryPanelManager.I.CheckPlaceholderHover(mousePos, Item);
+    if (anotherPlaceholder != null) {
+      if (anotherPlaceholder.Item != null) {
+        ItemSO anotherPlaceholderItem = anotherPlaceholder.Item.Clone();
+        InventoryPanelManager.RemoveItemAction(new InventoryItem(anotherPlaceholder.Item, anotherPlaceholder.Location));
+        InventoryPanelManager.AddItemAction(new InventoryItem(Item, anotherPlaceholder.Location));
+        InventoryPanelManager.RemoveItemAction(new InventoryItem(Item, Location));
+        InventoryPanelManager.AddItemAction(new InventoryItem(anotherPlaceholderItem, Location));
+      }
+      else {
+        InventoryPanelManager.AddItemAction(new InventoryItem(Item, anotherPlaceholder.Location));
+        InventoryPanelManager.RemoveItemAction(new InventoryItem(Item, Location));
+      }
       return;
     }
   }
@@ -104,23 +119,19 @@ public class InventoryTile : MonoBehaviour {
     placeholderImg.color = new Color(0f, 0.7f, 0f, 0.4f);
   }
 
-  public void DefaultIndicator() {
+  public void SetDefaultColor() {
     placeholderImg.color = placeholderImgDefaultColor;
   }
 
-  public void HoverIndicator() {
+  public void SetOnHoverColor() {
     placeholderImg.color = new Color(0f, 0.7f, 0f, 0.4f);
   }
 
-  public void DraggingIndicator() {
+  public void SetOnDraggingColor() {
     placeholderImg.color = new Color(0.5f, 0.5f, 0f, 0.4f);
   }
 
   public bool IsHover(Vector2 pos) {
     return RectTransformUtility.RectangleContainsScreenPoint(GetComponent<RectTransform>(), pos, Camera.main);
-  }
-
-  public bool IsEmpty() {
-    return Item == null;
   }
 }

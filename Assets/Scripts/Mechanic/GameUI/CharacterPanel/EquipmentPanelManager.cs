@@ -1,9 +1,7 @@
 using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
-public enum EquipPlaceholderTypes {
+public enum EquipmentPlaceholderTypes {
   HEAD_ARMOR = 0,
   BODY_ARMOR = 1,
   RIGHT_HAND_WEAPON = 2,
@@ -18,6 +16,10 @@ public enum EquipPlaceholderTypes {
 }
 
 public class EquipmentPanelManager : MonoBehaviour {
+  public delegate void EquipmentEventHandler(ItemSO item, EquipmentPlaceholderTypes placeholderType);
+  public static event EquipmentEventHandler OnEquipItemAction;
+  public static event EquipmentEventHandler OnUnequipItemAction;
+
   public static EquipmentPanelManager I;
 
   [SerializeField] private EquipmentPlaceholder rightHandPlaceholder;
@@ -32,92 +34,21 @@ public class EquipmentPanelManager : MonoBehaviour {
   [SerializeField] private EquipmentPlaceholder ring1ItemPlaceholder;
   [SerializeField] private EquipmentPlaceholder ring2ItemPlaceholder;
 
+  private Color onHoverColor = new Color(0.8f, 0f, 0f, 0.5f);
+  private Color defaultColor = new Color(0f, 0f, 0f, 0.5f);
+
   public bool IsDragging { get; private set; }
 
   private void Awake() {
     if (I == null) {
       I = this;
     }
+
+    PlayerEvents.OnPlayerEquipmentUpdated += Evaluate;
   }
 
-  public void Init(PlayerEquipment equipments) {
-    if (equipments.HeadArmor != null) {
-      headArmorItemPlaceholder.EquipItem(equipments.HeadArmor);
-    }
-    else {
-      headArmorItemPlaceholder.ResetPlaceholder();
-    }
-
-    if (equipments.BodyArmor != null) {
-      bodyArmorItemPlaceholder.EquipItem(equipments.BodyArmor);
-    }
-    else {
-      bodyArmorItemPlaceholder.ResetPlaceholder();
-    }
-
-    if (equipments.RightHandWeapon != null) {
-      rightHandPlaceholder.EquipItem(equipments.RightHandWeapon);
-    }
-    else {
-      rightHandPlaceholder.ResetPlaceholder();
-    }
-
-    if (equipments.LeftHandWeapon != null) {
-      leftHandPlaceholder.EquipItem(equipments.LeftHandWeapon);
-    }
-    else {
-      leftHandPlaceholder.ResetPlaceholder();
-    }
-
-    if (equipments.ShoulderArmor != null) {
-      shoulderArmorItemPlaceholder.EquipItem(equipments.ShoulderArmor);
-    }
-    else {
-      shoulderArmorItemPlaceholder.ResetPlaceholder();
-    }
-
-    if (equipments.HandArmor != null) {
-      handArmorItemPlaceholder.EquipItem(equipments.HandArmor);
-    }
-    else {
-      handArmorItemPlaceholder.ResetPlaceholder();
-    }
-
-    if (equipments.LegArmor != null) {
-      legArmorItemPlaceholder.EquipItem(equipments.LegArmor);
-    }
-    else {
-      legArmorItemPlaceholder.ResetPlaceholder();
-    }
-
-    if (equipments.FootArmor != null) {
-      footArmorItemPlaceholder.EquipItem(equipments.FootArmor);
-    }
-    else {
-      footArmorItemPlaceholder.ResetPlaceholder();
-    }
-
-    if (equipments.Necklace != null) {
-      necklaceItemPlaceholder.EquipItem(equipments.Necklace);
-    }
-    else {
-      necklaceItemPlaceholder.ResetPlaceholder();
-    }
-
-    if (equipments.Ring1 != null) {
-      ring1ItemPlaceholder.EquipItem(equipments.Ring1);
-    }
-    else {
-      ring1ItemPlaceholder.ResetPlaceholder();
-    }
-
-    if (equipments.Ring2 != null) {
-      ring2ItemPlaceholder.EquipItem(equipments.Ring2);
-    }
-    else {
-      ring2ItemPlaceholder.ResetPlaceholder();
-    }
-
+  private void OnDestroy() {
+    PlayerEvents.OnPlayerEquipmentUpdated -= Evaluate;
   }
 
   public void ResetPanel() {
@@ -133,86 +64,99 @@ public class EquipmentPanelManager : MonoBehaviour {
     ring2ItemPlaceholder.ResetPlaceholder();
   }
 
-  public void EquipItem(EquipPlaceholderTypes placeholderType, ItemSO item) {
-    switch (placeholderType) {
-      case EquipPlaceholderTypes.HEAD_ARMOR:
-        headArmorItemPlaceholder.EquipItem(item);
-        break;
-      case EquipPlaceholderTypes.BODY_ARMOR:
-        bodyArmorItemPlaceholder.EquipItem(item);
-        break;
-      case EquipPlaceholderTypes.RIGHT_HAND_WEAPON:
-        rightHandPlaceholder.EquipItem(item);
-        break;
-      case EquipPlaceholderTypes.LEFT_HAND_WEAPON:
-        leftHandPlaceholder.EquipItem(item);
-        break;
-      case EquipPlaceholderTypes.SHOULDER_ARMOR:
-        shoulderArmorItemPlaceholder.EquipItem(item);
-        break;
-      case EquipPlaceholderTypes.HAND_ARMOR:
-        handArmorItemPlaceholder.EquipItem(item);
-        break;
-      case EquipPlaceholderTypes.LEG_ARMOR:
-        legArmorItemPlaceholder.EquipItem(item);
-        break;
-      case EquipPlaceholderTypes.FOOT_ARMOR:
-        footArmorItemPlaceholder.EquipItem(item);
-        break;
-      case EquipPlaceholderTypes.NECKLACE:
-        necklaceItemPlaceholder.EquipItem(item);
-        break;
-      case EquipPlaceholderTypes.RING1:
-        ring1ItemPlaceholder.EquipItem(item);
-        break;
-      case EquipPlaceholderTypes.RING2:
-        ring2ItemPlaceholder.EquipItem(item);
-        break;
-      default:
-        throw new Exception("placeholderType type not found");
+  public static void EquipItemAction(ItemSO item, EquipmentPlaceholderTypes placeholderType) {
+    if (OnEquipItemAction == null) {
+      return;
     }
-    Player.I.Character.EquipItem(placeholderType, item);
+
+    OnEquipItemAction(item, placeholderType);
   }
 
-  public void UnequipItem(EquipPlaceholderTypes placeholderType, ItemSO item) {
-    Player.I.Character.UnequipItem(placeholderType, item);
-  }
-
-
-  public Vector2 GetItemPlaceholderPos(EquipPlaceholderTypes placeholder) {
-    switch (placeholder) {
-      case EquipPlaceholderTypes.HEAD_ARMOR:
-        return headArmorItemPlaceholder.GetComponentInParent<RectTransform>().position;
-      case EquipPlaceholderTypes.BODY_ARMOR:
-        return bodyArmorItemPlaceholder.GetComponentInParent<RectTransform>().position;
-      case EquipPlaceholderTypes.RIGHT_HAND_WEAPON:
-        return rightHandPlaceholder.GetComponentInParent<RectTransform>().position;
-      case EquipPlaceholderTypes.LEFT_HAND_WEAPON:
-        return leftHandPlaceholder.GetComponentInParent<RectTransform>().position;
-      case EquipPlaceholderTypes.SHOULDER_ARMOR:
-        return shoulderArmorItemPlaceholder.GetComponentInParent<RectTransform>().position;
-      case EquipPlaceholderTypes.HAND_ARMOR:
-        return handArmorItemPlaceholder.GetComponentInParent<RectTransform>().position;
-      case EquipPlaceholderTypes.LEG_ARMOR:
-        return legArmorItemPlaceholder.GetComponentInParent<RectTransform>().position;
-      case EquipPlaceholderTypes.FOOT_ARMOR:
-        return footArmorItemPlaceholder.GetComponentInParent<RectTransform>().position;
-      case EquipPlaceholderTypes.NECKLACE:
-        return necklaceItemPlaceholder.GetComponentInParent<RectTransform>().position;
-      case EquipPlaceholderTypes.RING1:
-        return ring1ItemPlaceholder.GetComponentInParent<RectTransform>().position;
-      case EquipPlaceholderTypes.RING2:
-        return ring2ItemPlaceholder.GetComponentInParent<RectTransform>().position;
-      default:
-        throw new Exception("EquimentPanelItems type not found");
+  public static void UnequipItemAction(ItemSO item, EquipmentPlaceholderTypes placeholderType) {
+    if (OnUnequipItemAction == null) {
+      return;
     }
+
+    OnUnequipItemAction(item, placeholderType);
   }
 
-  public void OnPlaceholderStartHover(BaseEventData data) {
-    data.selectedObject.GetComponent<Image>().color = new Color(0.8f, 0f, 0f, 0.5f);
-  }
-  public void OnPlaceholderExitHover(BaseEventData data) {
-    data.selectedObject.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.5f);
+  public void Evaluate(PlayerEquipment equipments) {
+    if (equipments.HeadArmor != null) {
+      headArmorItemPlaceholder.EquipItem(equipments.HeadArmor);
+    }
+    else {
+      headArmorItemPlaceholder.RemoveItem();
+    }
+
+    if (equipments.BodyArmor != null) {
+      bodyArmorItemPlaceholder.EquipItem(equipments.BodyArmor);
+    }
+    else {
+      bodyArmorItemPlaceholder.RemoveItem();
+    }
+
+    if (equipments.RightHandWeapon != null) {
+      rightHandPlaceholder.EquipItem(equipments.RightHandWeapon);
+    }
+    else {
+      rightHandPlaceholder.RemoveItem();
+    }
+
+    if (equipments.LeftHandWeapon != null) {
+      leftHandPlaceholder.EquipItem(equipments.LeftHandWeapon);
+    }
+    else {
+      leftHandPlaceholder.RemoveItem();
+    }
+
+    if (equipments.ShoulderArmor != null) {
+      shoulderArmorItemPlaceholder.EquipItem(equipments.ShoulderArmor);
+    }
+    else {
+      shoulderArmorItemPlaceholder.RemoveItem();
+    }
+
+    if (equipments.HandArmor != null) {
+      handArmorItemPlaceholder.EquipItem(equipments.HandArmor);
+    }
+    else {
+      handArmorItemPlaceholder.RemoveItem();
+    }
+
+    if (equipments.LegArmor != null) {
+      legArmorItemPlaceholder.EquipItem(equipments.LegArmor);
+    }
+    else {
+      legArmorItemPlaceholder.RemoveItem();
+    }
+
+    if (equipments.FootArmor != null) {
+      footArmorItemPlaceholder.EquipItem(equipments.FootArmor);
+    }
+    else {
+      footArmorItemPlaceholder.RemoveItem();
+    }
+
+    if (equipments.Necklace != null) {
+      necklaceItemPlaceholder.EquipItem(equipments.Necklace);
+    }
+    else {
+      necklaceItemPlaceholder.RemoveItem();
+    }
+
+    if (equipments.Ring1 != null) {
+      ring1ItemPlaceholder.EquipItem(equipments.Ring1);
+    }
+    else {
+      ring1ItemPlaceholder.RemoveItem();
+    }
+
+    if (equipments.Ring2 != null) {
+      ring2ItemPlaceholder.EquipItem(equipments.Ring2);
+    }
+    else {
+      ring2ItemPlaceholder.RemoveItem();
+    }
   }
 
   public EquipmentPlaceholder CheckPlaceholderHover(Vector2 pos, ItemSO item) {
@@ -290,7 +234,41 @@ public class EquipmentPanelManager : MonoBehaviour {
       shoulderArmorItemPlaceholder.DefaultIndicator();
     }
 
+    // TODO
+    // check hand armor placeholder
+    // check leg armor placeholder
+    // check foot armor placeholder
+
     return null;
+  }
+
+  private EquipmentPlaceholder GetPlaceholder(EquipmentPlaceholderTypes placeholderType) {
+    switch (placeholderType) {
+      case EquipmentPlaceholderTypes.HEAD_ARMOR:
+        return headArmorItemPlaceholder;
+      case EquipmentPlaceholderTypes.NECKLACE:
+        return necklaceItemPlaceholder;
+      case EquipmentPlaceholderTypes.RING1:
+        return ring1ItemPlaceholder;
+      case EquipmentPlaceholderTypes.RING2:
+        return ring2ItemPlaceholder;
+      case EquipmentPlaceholderTypes.RIGHT_HAND_WEAPON:
+        return rightHandPlaceholder;
+      case EquipmentPlaceholderTypes.LEFT_HAND_WEAPON:
+        return leftHandPlaceholder;
+      case EquipmentPlaceholderTypes.BODY_ARMOR:
+        return bodyArmorItemPlaceholder;
+      case EquipmentPlaceholderTypes.SHOULDER_ARMOR:
+        return shoulderArmorItemPlaceholder;
+      case EquipmentPlaceholderTypes.HAND_ARMOR:
+        return handArmorItemPlaceholder;
+      case EquipmentPlaceholderTypes.LEG_ARMOR:
+        return legArmorItemPlaceholder;
+      case EquipmentPlaceholderTypes.FOOT_ARMOR:
+        return footArmorItemPlaceholder;
+      default:
+        throw new Exception("EquimentPanelItems type not found");
+    }
   }
 }
 

@@ -16,5 +16,7 @@ public class ItemSO : ScriptableObject, IItem {
 
   public string GetAssetPrefabName() => AssetId + "Prefab.prefab";
 
+  public ItemSO Clone() => ((IItem)this).Clone() as ItemSO;
+
   object System.ICloneable.Clone() => (object)this.MemberwiseClone();
 }

@@ -3,8 +3,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class EquipmentPlaceholder : MonoBehaviour {
-  [SerializeField] private EquipPlaceholderTypes placeholderType;
-  public EquipPlaceholderTypes PlaceholderType { get { return placeholderType; } }
+  [SerializeField] private EquipmentPlaceholderTypes placeholderType;
+  public EquipmentPlaceholderTypes PlaceholderType { get { return placeholderType; } }
 
   private Image placeholderImg;
   private Color defaultColor;
@@ -44,11 +44,11 @@ public class EquipmentPlaceholder : MonoBehaviour {
     DefaultIndicator();
   }
 
-  public void UnequipItem() {
-    EquipmentPanelManager.I.UnequipItem(placeholderType, Item);
+  public void RemoveItem() {
     ResetPlaceholder();
   }
 
+  // event trigger
   public void OnBeginDrag() {
     if (Item == null) {
       return;
@@ -57,10 +57,12 @@ public class EquipmentPlaceholder : MonoBehaviour {
     itemImgDragging.gameObject.SetActive(true);
   }
 
+  // event trigger
   public void OnDrag(BaseEventData eventData) {
     if (Item == null) {
       return;
     }
+    DraggingIndicator();
 
     Vector2 mousePos = ((PointerEventData)eventData).position;
     Vector2 pos;
@@ -72,25 +74,28 @@ public class EquipmentPlaceholder : MonoBehaviour {
     );
 
     itemImgDragging.GetComponent<RectTransform>().position = GameUIManager.I.GetRectTransform().TransformPoint(pos);
-    InventoryPanelManager.I.CheckInventoryTileHover(mousePos, Item);
+    InventoryPanelManager.I.CheckPlaceholderHover(mousePos, Item);
   }
 
+  // event trigger
   public void OnEndDrag(BaseEventData eventData) {
     if (Item == null) {
       return;
     }
+    DefaultIndicator();
 
     itemImgDragging.gameObject.SetActive(false);
     itemImgDragging.GetComponent<RectTransform>().position = itemImg.GetComponent<RectTransform>().position;
 
-    InventoryTile inventoryTile = InventoryPanelManager.I.CheckInventoryTileHover(((PointerEventData)eventData).position, Item);
+    InventoryItemPlaceholder inventoryTile = InventoryPanelManager.I.CheckPlaceholderHover(((PointerEventData)eventData).position, Item);
     if (inventoryTile == null) {
       return;
     }
-    InventoryPanelManager.I.AddItem(Item, inventoryTile.Location);
-    UnequipItem();
+    InventoryPanelManager.AddItemAction(new InventoryItem(Item, inventoryTile.Location));
+    EquipmentPanelManager.UnequipItemAction(Item, placeholderType);
   }
 
+  // also used in event trigger (pointer exit)
   public void DefaultIndicator() {
     placeholderImg.color = defaultColor;
   }
@@ -104,7 +109,7 @@ public class EquipmentPlaceholder : MonoBehaviour {
   }
 
   public void DraggingIndicator() {
-    placeholderImg.color = new Color(0.5f, 0.5f, 0f, 0.4f);
+    placeholderImg.color = new Color(1f, 0.9f, 0f, 1f);
   }
 
   public bool IsHover(Vector2 pos) {
@@ -119,22 +124,22 @@ public class EquipmentPlaceholder : MonoBehaviour {
     if (
       (
         (item.Type == ItemTypes.WEAPON || item.Type == ItemTypes.SHIELD) &&
-        (PlaceholderType == EquipPlaceholderTypes.RIGHT_HAND_WEAPON || PlaceholderType == EquipPlaceholderTypes.LEFT_HAND_WEAPON)
+        (PlaceholderType == EquipmentPlaceholderTypes.RIGHT_HAND_WEAPON || PlaceholderType == EquipmentPlaceholderTypes.LEFT_HAND_WEAPON)
       ) ||
       (
         item.Type == ItemTypes.ARMOR &&
         ((ArmorSO)item).ArmorType == ArmorTypes.HEAD &&
-        PlaceholderType == EquipPlaceholderTypes.HEAD_ARMOR
+        PlaceholderType == EquipmentPlaceholderTypes.HEAD_ARMOR
       ) ||
       (
         item.Type == ItemTypes.ARMOR &&
         ((ArmorSO)item).ArmorType == ArmorTypes.BODY &&
-        PlaceholderType == EquipPlaceholderTypes.BODY_ARMOR
+        PlaceholderType == EquipmentPlaceholderTypes.BODY_ARMOR
       ) ||
       (
         item.Type == ItemTypes.ARMOR &&
         ((ArmorSO)item).ArmorType == ArmorTypes.SHOULDER &&
-        PlaceholderType == EquipPlaceholderTypes.SHOULDER_ARMOR
+        PlaceholderType == EquipmentPlaceholderTypes.SHOULDER_ARMOR
       )
     ) {
       return true;

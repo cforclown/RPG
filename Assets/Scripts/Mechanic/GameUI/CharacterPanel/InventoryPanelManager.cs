@@ -7,39 +7,67 @@ public enum InventoryAction {
 }
 
 public class InventoryPanelManager : MonoBehaviour {
+  public delegate void InventoryEventHandler(InventoryItem item);
+  public static event InventoryEventHandler OnAddItemAction;
+  public static event InventoryEventHandler OnRemoveItemAction;
+
   public static InventoryPanelManager I;
 
   public bool IsDragging { get; private set; }
 
-  private List<InventoryTile> tiles;
+  private List<InventoryItemPlaceholder> placeholders;
 
   private void Awake() {
     I = this;
 
-    tiles = new List<InventoryTile>(PlayerInventory.SIZE);
+    placeholders = new List<InventoryItemPlaceholder>(PlayerInventory.SIZE);
     int tileGameObjCount = transform.childCount;
     if (tileGameObjCount < PlayerInventory.SIZE) {
       Logger.Err(this.name, "Inventory container child count is not same with defined size");
     }
     for (int x = 0; x < tileGameObjCount; x++) {
-      InventoryTile tile = transform.GetChild(x).GetComponent<InventoryTile>();
+      InventoryItemPlaceholder tile = transform.GetChild(x).GetComponent<InventoryItemPlaceholder>();
       tile.SetLocation(x);
-      tiles.Add(tile);
+      placeholders.Add(tile);
     }
+
+    PlayerEvents.OnPlayerInventoryUpdated += Evaluate;
   }
 
-  public void Init(PlayerInventory inventory) {
-    if (inventory == null) {
+  private void OnDestroy() {
+    I = null;
+  }
+
+  public static void AddItemAction(InventoryItem item) {
+    if (OnAddItemAction == null) {
       return;
     }
 
-    foreach (InventoryItem inventoryItem in inventory.Items) {
-      tiles[inventoryItem.Location].Item = inventoryItem.Item;
+    OnAddItemAction(item);
+  }
+
+  public static void RemoveItemAction(InventoryItem item) {
+    if (OnRemoveItemAction == null) {
+      return;
+    }
+
+    OnRemoveItemAction(item);
+  }
+
+  public void Evaluate(PlayerInventory inventory) {
+    foreach (InventoryItemPlaceholder placeholder in placeholders) {
+      InventoryItem item = inventory.Items.Find(i => i.Location == placeholder.Location);
+      if (item == null) {
+        placeholder.Item = null;
+      }
+      else {
+        placeholder.Item = item.Item;
+      }
     }
   }
 
   public int GetAvailableLocation() {
-    foreach (InventoryTile tile in tiles) {
+    foreach (InventoryItemPlaceholder tile in placeholders) {
       if (tile.Item == null) {
         return tile.Location;
       }
@@ -49,39 +77,27 @@ public class InventoryPanelManager : MonoBehaviour {
   }
 
   public void ResetPanel() {
-    foreach (InventoryTile tile in tiles.FindAll(t => t.Item != null)) {
+    foreach (InventoryItemPlaceholder tile in placeholders.FindAll(t => t.Item != null)) {
       tile.Item = null;
     }
   }
 
-  public void AddItem(ItemSO item, int location) {
-    tiles[location].Item = item;
-    InventoryItem inventoryItem = new InventoryItem(item, location);
-    Player.I.Character.Stats.AddItem(inventoryItem);
-  }
-
-  public void RemoveItem(ItemSO item, int location) {
-    tiles[location].Item = null;
-    InventoryItem inventoryItem = new InventoryItem(item, location);
-    Player.I.Character.Stats.RemoveItem(inventoryItem);
-  }
-
-  public InventoryTile CheckInventoryTileHover(Vector2 pos, ItemSO item) {
+  public InventoryItemPlaceholder CheckPlaceholderHover(Vector2 pos, ItemSO item) {
     if (item == null) {
       return null;
     }
 
-    InventoryTile hoveredTile = null;
-    foreach (InventoryTile tile in tiles) {
-      if (tile.IsHover(pos) && tile.IsEmpty()) {
-        tile.HoverIndicator();
-        hoveredTile = tile;
+    InventoryItemPlaceholder hoveredPlaceholder = null;
+    foreach (InventoryItemPlaceholder placeholder in placeholders) {
+      if (placeholder.IsHover(pos)) {
+        placeholder.SetOnHoverColor();
+        hoveredPlaceholder = placeholder;
       }
       else {
-        tile.DefaultIndicator();
+        placeholder.SetDefaultColor();
       }
     }
 
-    return hoveredTile;
+    return hoveredPlaceholder;
   }
 }

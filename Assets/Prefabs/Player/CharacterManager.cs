@@ -59,6 +59,10 @@ public class CharacterManager : MonoBehaviour {
     NPCEvents.OnPlayerAcceptNPCQuest += OnQuestAccepted;
     QuestEvents.OnQuestFinished += OnQuestDone;
     SkillBtn.OnSkillBtnPressed += ClaimSkill;
+    InventoryPanelManager.OnAddItemAction += AddItem;
+    InventoryPanelManager.OnRemoveItemAction += RemoveItem;
+    EquipmentPanelManager.OnEquipItemAction += EquipItem;
+    EquipmentPanelManager.OnUnequipItemAction += UnequipItem;
   }
 
   private void OnDestroy() {
@@ -69,32 +73,18 @@ public class CharacterManager : MonoBehaviour {
     NPCEvents.OnPlayerAcceptNPCQuest -= OnQuestAccepted;
     QuestEvents.OnQuestFinished -= OnQuestDone;
     SkillBtn.OnSkillBtnPressed -= ClaimSkill;
+    InventoryPanelManager.OnAddItemAction -= AddItem;
+    InventoryPanelManager.OnRemoveItemAction -= RemoveItem;
+    EquipmentPanelManager.OnEquipItemAction -= EquipItem;
+    EquipmentPanelManager.OnUnequipItemAction -= UnequipItem;
   }
 
   public void Init(Character player) {
     Stats = player;
-    InitEquipments(Stats.Equipment);
     PlayerEvents.PlayerStatsUpdated(player);
-  }
-
-  public float GetDamageOutput() {
-    // TODO find out the damage coming from, right hand weapon or left hand weapon or unarmed damage
-
-    return Stats.UnarmedDamage;
-  }
-
-  private void GetHit(Enemy enemy) {
-    int rawDamage = enemy.Stats.Damage;
-    // TODO calculate damage against armor
-
-    Stats.GetHit(rawDamage);
-    if (Stats.HP <= 0) {
-      animController.Dead();
-      GameManager.I.Respawn();
-    }
-
-    CombatEvents.AttackHit(transform, rawDamage);
-    CombatEvents.EnemyHitPlayer(enemy, Stats);
+    PlayerEvents.PlayerEquipmentUpdated(player.Equipment);
+    PlayerEvents.PlayerInventoryUpdated(player.Inventory);
+    PlayerEvents.PlayerSkillsUpdated(player.Skills);
   }
 
   private void HealHP(int heal) {
@@ -112,8 +102,6 @@ public class CharacterManager : MonoBehaviour {
     PlayerEvents.PlayerStatsUpdated(Stats);
   }
 
-  private void CombatEventsOnKillingEnemy(Enemy enemy) => GrantExp(enemy.Stats.KilledExp);
-
   private void GrantExp(int amount) {
     int prevLevel = Stats.Level;
     Stats.GainExp(amount);
@@ -124,6 +112,8 @@ public class CharacterManager : MonoBehaviour {
     PlayerEvents.PlayerStatsUpdated(Stats);
   }
 
+
+
   private void OnQuestAccepted(NPC npc) {
     Stats.Quests.AddQuest(npc.data.Quest);
   }
@@ -132,6 +122,9 @@ public class CharacterManager : MonoBehaviour {
     GrantExp(quest.ExpReward);
     Stats.Quests.RemoveQuest(quest);
   }
+
+
+
 
   private void ClaimSkill(SkillSO skill) {
     SkillSO currentSkill = Stats.Skills.Skills.Find(s => s.Id == skill.Id);
@@ -142,6 +135,8 @@ public class CharacterManager : MonoBehaviour {
     currentSkill.LevelUp();
     PlayerEvents.PlayerSkillsUpdated(Stats.Skills);
   }
+
+
 
   public void IncreaseStrength() {
     Stats.IncreaseStrength();
@@ -156,6 +151,24 @@ public class CharacterManager : MonoBehaviour {
   public void IncreaseIntelligence() {
     Stats.IncreaseIntelligence();
     PlayerEvents.PlayerStatsUpdated(Stats);
+  }
+
+
+
+  private void CombatEventsOnKillingEnemy(Enemy enemy) => GrantExp(enemy.Stats.KilledExp);
+
+  private void GetHit(Enemy enemy) {
+    int rawDamage = enemy.Stats.Damage;
+    // TODO calculate damage against armor
+
+    Stats.GetHit(rawDamage);
+    if (Stats.HP <= 0) {
+      animController.Dead();
+      GameManager.I.Respawn();
+    }
+
+    CombatEvents.AttackHit(transform, rawDamage);
+    CombatEvents.EnemyHitPlayer(enemy, Stats);
   }
 
   private void OnTriggerEnter(Collider collider) {
@@ -196,8 +209,10 @@ public class CharacterManager : MonoBehaviour {
       return;
     }
 
-    int damage = (int)GetDamageOutput();
     animController.AttackHit();
+
+    // TODO calculate damage againts enemy armor
+    int damage = Stats.UnarmedDamage;
     enemyController.GetHit(damage);
   }
 
@@ -218,58 +233,73 @@ public class CharacterManager : MonoBehaviour {
     }
 
     animController.AttackHit();
-    enemyController.GetHit(Generator.RandomInt(weapon.MinDamage, weapon.MaxDamage));
+
+    // TODO calculate damage againts enemy armor
+    int damage = Generator.RandomInt(weapon.MinDamage, weapon.MaxDamage);
+    enemyController.GetHit(damage);
+  }
+
+
+
+  public void AddItem(InventoryItem item) {
+    Stats.AddItem(item);
+    PlayerEvents.PlayerInventoryUpdated(Stats.Inventory);
+  }
+
+  public void RemoveItem(InventoryItem item) {
+    Stats.RemoveItem(item);
+    PlayerEvents.PlayerInventoryUpdated(Stats.Inventory);
   }
 
   public void InitEquipments(PlayerEquipment equipments) {
     if (equipments.HeadArmor != null) {
-      EquipItem(EquipPlaceholderTypes.HEAD_ARMOR, equipments.HeadArmor);
+      EquipItem(equipments.HeadArmor, EquipmentPlaceholderTypes.HEAD_ARMOR);
     }
     if (equipments.BodyArmor != null) {
-      EquipItem(EquipPlaceholderTypes.BODY_ARMOR, equipments.BodyArmor);
+      EquipItem(equipments.BodyArmor, EquipmentPlaceholderTypes.BODY_ARMOR);
     }
     if (equipments.RightHandWeapon != null) {
-      EquipItem(EquipPlaceholderTypes.RIGHT_HAND_WEAPON, equipments.RightHandWeapon);
+      EquipItem(equipments.RightHandWeapon, EquipmentPlaceholderTypes.RIGHT_HAND_WEAPON);
     }
     if (equipments.LeftHandWeapon != null) {
-      EquipItem(EquipPlaceholderTypes.LEFT_HAND_WEAPON, equipments.LeftHandWeapon);
+      EquipItem(equipments.LeftHandWeapon, EquipmentPlaceholderTypes.LEFT_HAND_WEAPON);
     }
     if (equipments.ShoulderArmor != null) {
-      EquipItem(EquipPlaceholderTypes.SHOULDER_ARMOR, equipments.ShoulderArmor);
+      EquipItem(equipments.ShoulderArmor, EquipmentPlaceholderTypes.SHOULDER_ARMOR);
     }
     if (equipments.HandArmor != null) {
-      EquipItem(EquipPlaceholderTypes.HAND_ARMOR, equipments.HandArmor);
+      EquipItem(equipments.HandArmor, EquipmentPlaceholderTypes.HAND_ARMOR);
     }
     if (equipments.LegArmor != null) {
-      EquipItem(EquipPlaceholderTypes.LEG_ARMOR, equipments.LegArmor);
+      EquipItem(equipments.LegArmor, EquipmentPlaceholderTypes.LEG_ARMOR);
     }
     if (equipments.FootArmor != null) {
-      EquipItem(EquipPlaceholderTypes.FOOT_ARMOR, equipments.FootArmor);
+      EquipItem(equipments.FootArmor, EquipmentPlaceholderTypes.FOOT_ARMOR);
     }
     if (equipments.Necklace != null) {
-      EquipItem(EquipPlaceholderTypes.NECKLACE, equipments.Necklace);
+      EquipItem(equipments.Necklace, EquipmentPlaceholderTypes.NECKLACE);
     }
     if (equipments.Ring1 != null) {
-      EquipItem(EquipPlaceholderTypes.RING1, equipments.Ring1);
+      EquipItem(equipments.Ring1, EquipmentPlaceholderTypes.RING1);
     }
     if (equipments.Ring2 != null) {
-      EquipItem(EquipPlaceholderTypes.RING2, equipments.Ring2);
+      EquipItem(equipments.Ring2, EquipmentPlaceholderTypes.RING2);
     }
   }
 
-  public void EquipItem(EquipPlaceholderTypes placeholderType, ItemSO item) {
+  public void EquipItem(ItemSO item, EquipmentPlaceholderTypes placeholderType) {
     if (item == null) {
       return;
     }
 
-    Stats.Equipment.EquipItem(placeholderType, item);
+    Stats.Equipment.EquipItem(item, placeholderType);
     if (
       item.Type == ItemTypes.WEAPON &&
       ((WeaponSO)item).WeaponType == WeaponTypes.MELEE &&
       ((MeleeWeaponSO)item).MeleeWeaponType != MeleeWeaponTypes.GREAT_SWORD &&
       (
-        placeholderType == EquipPlaceholderTypes.RIGHT_HAND_WEAPON ||
-        placeholderType == EquipPlaceholderTypes.LEFT_HAND_WEAPON
+        placeholderType == EquipmentPlaceholderTypes.RIGHT_HAND_WEAPON ||
+        placeholderType == EquipmentPlaceholderTypes.LEFT_HAND_WEAPON
       )
     ) {
       rightHandAttackCollider.Disable();
@@ -282,15 +312,17 @@ public class CharacterManager : MonoBehaviour {
     asyncOperationHandle.Completed += (AsyncOperationHandle<GameObject> asyncOperationHandle) => {
       LoadItemPrefabOperationCompleted(asyncOperationHandle, placeholderType, item);
     };
+
+    PlayerEvents.PlayerEquipmentUpdated(Stats.Equipment);
   }
 
-  public void UnequipItem(EquipPlaceholderTypes placeholderType, ItemSO item) {
+  public void UnequipItem(ItemSO item, EquipmentPlaceholderTypes placeholderType) {
     if (
       item != null &&
       item.Type == ItemTypes.WEAPON &&
       (
-        placeholderType == EquipPlaceholderTypes.RIGHT_HAND_WEAPON ||
-        placeholderType == EquipPlaceholderTypes.LEFT_HAND_WEAPON
+        placeholderType == EquipmentPlaceholderTypes.RIGHT_HAND_WEAPON ||
+        placeholderType == EquipmentPlaceholderTypes.LEFT_HAND_WEAPON
       ) &&
       !(
         Stats.Equipment.RightHandWeapon != null && Stats.Equipment.LeftHandWeapon != null
@@ -303,25 +335,27 @@ public class CharacterManager : MonoBehaviour {
 
     Stats.Equipment.UnequipItem(placeholderType);
     RemoveItemGameObjectFromPlayer(placeholderType, item);
+
+    PlayerEvents.PlayerEquipmentUpdated(Stats.Equipment);
   }
 
   private void LoadItemPrefabOperationCompleted(
     AsyncOperationHandle<GameObject> asyncOperationHandle,
-    EquipPlaceholderTypes placeholderType,
+    EquipmentPlaceholderTypes placeholderType,
     ItemSO item
   ) {
     if (asyncOperationHandle.Status == AsyncOperationStatus.Succeeded) {
-      if (placeholderType == EquipPlaceholderTypes.RIGHT_HAND_WEAPON || placeholderType == EquipPlaceholderTypes.LEFT_HAND_WEAPON) {
+      if (placeholderType == EquipmentPlaceholderTypes.RIGHT_HAND_WEAPON || placeholderType == EquipmentPlaceholderTypes.LEFT_HAND_WEAPON) {
         EquipWeapon(asyncOperationHandle.Result, placeholderType, item);
       }
-      else if (placeholderType == EquipPlaceholderTypes.SHOULDER_ARMOR) {
+      else if (placeholderType == EquipmentPlaceholderTypes.SHOULDER_ARMOR) {
         EquipShoulderArmor(asyncOperationHandle.Result, item);
       }
-      else if (placeholderType == EquipPlaceholderTypes.HAND_ARMOR) {
+      else if (placeholderType == EquipmentPlaceholderTypes.HAND_ARMOR) {
         Debug.LogWarning("HAND ARMOR EQUIP NOT IMPLEMENTED YET!");
       }
 
-      else if (placeholderType == EquipPlaceholderTypes.FOOT_ARMOR) {
+      else if (placeholderType == EquipmentPlaceholderTypes.FOOT_ARMOR) {
         Debug.LogWarning("FOOT ARMOR EQUIP NOT IMPLEMENTED YET!");
       }
       else {
@@ -334,11 +368,11 @@ public class CharacterManager : MonoBehaviour {
     }
   }
 
-  private void EquipWeapon(GameObject prefab, EquipPlaceholderTypes placeholder, ItemSO item) {
+  private void EquipWeapon(GameObject prefab, EquipmentPlaceholderTypes placeholder, ItemSO item) {
     WeaponSO weaponData = (WeaponSO)item;
     GameObject itemObj = Instantiate(
       prefab,
-      placeholder == EquipPlaceholderTypes.RIGHT_HAND_WEAPON ? rightHandEquipParent : leftHandEquipParent
+      placeholder == EquipmentPlaceholderTypes.RIGHT_HAND_WEAPON ? rightHandEquipParent : leftHandEquipParent
     );
     itemObj.name = item.Id;
     WeaponMono<WeaponSO> itemMono = itemObj.GetComponent<WeaponMono<WeaponSO>>();
@@ -368,7 +402,7 @@ public class CharacterManager : MonoBehaviour {
     leftArmorMono.Init((ArmorSO)item);
   }
 
-  private void RemoveItemGameObjectFromPlayer(EquipPlaceholderTypes placeholderType, ItemSO item) {
+  private void RemoveItemGameObjectFromPlayer(EquipmentPlaceholderTypes placeholderType, ItemSO item) {
     if (item == null) {
       return;
     }
@@ -376,43 +410,43 @@ public class CharacterManager : MonoBehaviour {
     try {
       Transform itemObjTransform;
       switch (placeholderType) {
-        case EquipPlaceholderTypes.RIGHT_HAND_WEAPON:
+        case EquipmentPlaceholderTypes.RIGHT_HAND_WEAPON:
           itemObjTransform = rightHandEquipParent.Find(item.Id);
           if (itemObjTransform == null) {
             break;
           }
           Destroy(itemObjTransform.gameObject);
           break;
-        case EquipPlaceholderTypes.LEFT_HAND_WEAPON:
+        case EquipmentPlaceholderTypes.LEFT_HAND_WEAPON:
           itemObjTransform = leftHandEquipParent.Find(item.Id);
           if (itemObjTransform == null) {
             break;
           }
           Destroy(itemObjTransform.gameObject);
           break;
-        case EquipPlaceholderTypes.HEAD_ARMOR:
+        case EquipmentPlaceholderTypes.HEAD_ARMOR:
           itemObjTransform = headArmorEquipParent.Find(item.Id);
           if (itemObjTransform == null) {
             break;
           }
           Destroy(itemObjTransform.gameObject);
           break;
-        case EquipPlaceholderTypes.BODY_ARMOR:
+        case EquipmentPlaceholderTypes.BODY_ARMOR:
           itemObjTransform = bodyArmorEquipParent.Find(item.Id);
           if (itemObjTransform == null) {
             break;
           }
           Destroy(itemObjTransform.gameObject);
           break;
-        case EquipPlaceholderTypes.SHOULDER_ARMOR:
+        case EquipmentPlaceholderTypes.SHOULDER_ARMOR:
           RemoveShoulderArmorGameObject(item);
           break;
-        case EquipPlaceholderTypes.NECKLACE:
-        case EquipPlaceholderTypes.RING1:
-        case EquipPlaceholderTypes.RING2:
-        case EquipPlaceholderTypes.HAND_ARMOR:
-        case EquipPlaceholderTypes.LEG_ARMOR:
-        case EquipPlaceholderTypes.FOOT_ARMOR:
+        case EquipmentPlaceholderTypes.NECKLACE:
+        case EquipmentPlaceholderTypes.RING1:
+        case EquipmentPlaceholderTypes.RING2:
+        case EquipmentPlaceholderTypes.HAND_ARMOR:
+        case EquipmentPlaceholderTypes.LEG_ARMOR:
+        case EquipmentPlaceholderTypes.FOOT_ARMOR:
           Debug.LogError("CharacterManager: Not implemented");
           break;
         default:

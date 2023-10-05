@@ -33,15 +33,13 @@ public class GameManager : MonoBehaviour {
     Player player = playerObj.GetComponent<Player>();
 
     PlayerInventory inventory = new PlayerInventory(new InventoryItem[] {
-      new InventoryItem(testLongSword, 0),
-      new InventoryItem(testSpartanHelm, 1),
-      new InventoryItem(testKnightHelm, 2),
-      new InventoryItem(testKnightShoulderArmor, 3),
-      new InventoryItem(testBodyArmor1, 4),
-      new InventoryItem(testMace1, 5)
+      new InventoryItem(testSpartanHelm, 0),
+      new InventoryItem(testKnightHelm, 1),
+      new InventoryItem(testKnightShoulderArmor, 2),
+      new InventoryItem(testBodyArmor1, 3),
+      new InventoryItem(testMace1, 4)
     });
     PlayerEquipment equipments = new PlayerEquipment();
-    equipments.EquipItem(EquipPlaceholderTypes.RIGHT_HAND_WEAPON, testLongSword);
     PlayerQuests quests = new PlayerQuests(null);
     player.Character.Init(new Character(
       "Hafis",
@@ -53,6 +51,7 @@ public class GameManager : MonoBehaviour {
       quests,
       new PlayerSkills()
     ));
+    player.Character.EquipItem(testLongSword, EquipmentPlaceholderTypes.RIGHT_HAND_WEAPON);
 
     return playerObj.GetComponent<Player>();
   }

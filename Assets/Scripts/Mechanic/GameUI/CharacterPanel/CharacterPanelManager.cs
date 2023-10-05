@@ -37,6 +37,10 @@ public class CharacterPanelManager : MonoBehaviour {
   }
 
   private void Open() {
+    if (Player.I == null) {
+      return;
+    }
+
     IsOpen = true;
     container.SetActive(true);
 
@@ -45,9 +49,9 @@ public class CharacterPanelManager : MonoBehaviour {
       EquipmentPanelManager.I.ResetPanel();
       initialized = true;
     }
-    CharacterStatsPanelManager.I.SetPlayerStats(Player.I.Character.Stats);
-    InventoryPanelManager.I.Init(Player.I.Character.Stats.Inventory);
-    EquipmentPanelManager.I.Init(Player.I.Character.Stats.Equipment);
+    CharacterStatsPanelManager.I.Evaluate(Player.I.Character.Stats);
+    InventoryPanelManager.I.Evaluate(Player.I.Character.Stats.Inventory);
+    EquipmentPanelManager.I.Evaluate(Player.I.Character.Stats.Equipment);
   }
 
   private void Close() {
