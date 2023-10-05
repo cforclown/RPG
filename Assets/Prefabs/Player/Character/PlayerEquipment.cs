@@ -1,5 +1,10 @@
 using System;
 
+public class EquippedItem {
+  ItemSO Item;
+  EquipmentPlaceholderTypes PlaceholderType;
+}
+
 [Serializable]
 public class PlayerEquipment {
   public ArmorSO HeadArmor { get; private set; }
@@ -14,43 +19,43 @@ public class PlayerEquipment {
   public ArmorSO LegArmor { get; private set; }
   public ArmorSO FootArmor { get; private set; }
 
-  public void EquipItem(EquipPlaceholderTypes placeholderType, ItemSO item) {
+  public void EquipItem(ItemSO item, EquipmentPlaceholderTypes placeholderType) {
     if (item == null) {
       return;
     }
 
     switch (placeholderType) {
-      case EquipPlaceholderTypes.HEAD_ARMOR:
+      case EquipmentPlaceholderTypes.HEAD_ARMOR:
         HeadArmor = (ArmorSO)item;
         break;
-      case EquipPlaceholderTypes.NECKLACE:
+      case EquipmentPlaceholderTypes.NECKLACE:
         Necklace = item;
         break;
-      case EquipPlaceholderTypes.RING1:
+      case EquipmentPlaceholderTypes.RING1:
         Ring1 = item;
         break;
-      case EquipPlaceholderTypes.RING2:
+      case EquipmentPlaceholderTypes.RING2:
         Ring2 = item;
         break;
-      case EquipPlaceholderTypes.RIGHT_HAND_WEAPON:
+      case EquipmentPlaceholderTypes.RIGHT_HAND_WEAPON:
         RightHandWeapon = item;
         break;
-      case EquipPlaceholderTypes.LEFT_HAND_WEAPON:
+      case EquipmentPlaceholderTypes.LEFT_HAND_WEAPON:
         LeftHandWeapon = item;
         break;
-      case EquipPlaceholderTypes.BODY_ARMOR:
+      case EquipmentPlaceholderTypes.BODY_ARMOR:
         BodyArmor = (ArmorSO)item;
         break;
-      case EquipPlaceholderTypes.SHOULDER_ARMOR:
+      case EquipmentPlaceholderTypes.SHOULDER_ARMOR:
         ShoulderArmor = (ArmorSO)item;
         break;
-      case EquipPlaceholderTypes.HAND_ARMOR:
+      case EquipmentPlaceholderTypes.HAND_ARMOR:
         HandArmor = (ArmorSO)item;
         break;
-      case EquipPlaceholderTypes.LEG_ARMOR:
+      case EquipmentPlaceholderTypes.LEG_ARMOR:
         LegArmor = (ArmorSO)item;
         break;
-      case EquipPlaceholderTypes.FOOT_ARMOR:
+      case EquipmentPlaceholderTypes.FOOT_ARMOR:
         FootArmor = (ArmorSO)item;
         break;
       default:
@@ -58,39 +63,39 @@ public class PlayerEquipment {
     }
   }
 
-  public void UnequipItem(EquipPlaceholderTypes placeholderType) {
+  public void UnequipItem(EquipmentPlaceholderTypes placeholderType) {
     switch (placeholderType) {
-      case EquipPlaceholderTypes.HEAD_ARMOR:
+      case EquipmentPlaceholderTypes.HEAD_ARMOR:
         HeadArmor = null;
         break;
-      case EquipPlaceholderTypes.NECKLACE:
+      case EquipmentPlaceholderTypes.NECKLACE:
         Necklace = null;
         break;
-      case EquipPlaceholderTypes.RING1:
+      case EquipmentPlaceholderTypes.RING1:
         Ring1 = null;
         break;
-      case EquipPlaceholderTypes.RING2:
+      case EquipmentPlaceholderTypes.RING2:
         Ring2 = null;
         break;
-      case EquipPlaceholderTypes.RIGHT_HAND_WEAPON:
+      case EquipmentPlaceholderTypes.RIGHT_HAND_WEAPON:
         RightHandWeapon = null;
         break;
-      case EquipPlaceholderTypes.LEFT_HAND_WEAPON:
+      case EquipmentPlaceholderTypes.LEFT_HAND_WEAPON:
         LeftHandWeapon = null;
         break;
-      case EquipPlaceholderTypes.BODY_ARMOR:
+      case EquipmentPlaceholderTypes.BODY_ARMOR:
         BodyArmor = null;
         break;
-      case EquipPlaceholderTypes.SHOULDER_ARMOR:
+      case EquipmentPlaceholderTypes.SHOULDER_ARMOR:
         ShoulderArmor = null;
         break;
-      case EquipPlaceholderTypes.HAND_ARMOR:
+      case EquipmentPlaceholderTypes.HAND_ARMOR:
         HandArmor = null;
         break;
-      case EquipPlaceholderTypes.LEG_ARMOR:
+      case EquipmentPlaceholderTypes.LEG_ARMOR:
         LegArmor = null;
         break;
-      case EquipPlaceholderTypes.FOOT_ARMOR:
+      case EquipmentPlaceholderTypes.FOOT_ARMOR:
         FootArmor = null;
         break;
       default:

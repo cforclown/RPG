@@ -81,7 +81,7 @@ public class PlayerAnimStateController : MonoBehaviour {
     isDeadHash = Animator.StringToHash("IsDead");
     isSkill1Hash = Animator.StringToHash("IsSkill1");
 
-    EquipmentEvents.OnItemEquipped += OnEquippedItemRemoved;
+    EquipmentPanelManager.OnEquipItemAction += OnEquippedItemRemoved;
   }
 
   private void Start() {
@@ -92,7 +92,7 @@ public class PlayerAnimStateController : MonoBehaviour {
     RunningMotionStarted = false;
   }
 
-  public void OnEquippedItemRemoved(ItemSO item, EquipPlaceholderTypes placeholder) {
+  public void OnEquippedItemRemoved(ItemSO item, EquipmentPlaceholderTypes placeholder) {
     // TODO change anim controller from here
   }
 

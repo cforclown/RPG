@@ -33,9 +33,16 @@ public class CharacterStatsPanelManager : MonoBehaviour {
     increaseIntelligenceBtn.onClick.AddListener(() => {
       OnIncreaseStatsClick("INTELLIGENCE");
     });
+
+    PlayerEvents.OnPlayerStatsUpdated += Evaluate;
   }
 
-  public void SetPlayerStats(Character stats) {
+  private void OnDestroy() {
+
+    PlayerEvents.OnPlayerStatsUpdated -= Evaluate;
+  }
+
+  public void Evaluate(Character stats) {
     try {
       playerNameText.text = stats.Name;
       if (stats.StatsPoint > 0) {
@@ -68,18 +75,17 @@ public class CharacterStatsPanelManager : MonoBehaviour {
     try {
       switch (statsName) {
         case "STRENGTH":
-          Player.I.Character.IncreaseStrength();
+          PlayerEvents.IncreaseStrengthAction();
           break;
         case "AGILITY":
-          Player.I.Character.IncreaseAgility();
+          PlayerEvents.IncreaseAgilityAction();
           break;
         case "INTELLIGENCE":
-          Player.I.Character.IncreaseIntelligence();
+          PlayerEvents.IncreaseIntelligenceAction();
           break;
         default:
           break;
       }
-      SetPlayerStats(Player.I.Character.Stats);
     }
     catch (Exception e) {
       Debug.LogWarning(e.Message);

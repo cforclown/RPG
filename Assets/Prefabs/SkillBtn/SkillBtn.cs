@@ -23,13 +23,7 @@ public class SkillBtn : MonoBehaviour {
 
     skillLevelText.gameObject.SetActive(false);
 
-    btnComponent.onClick.AddListener(() => {
-      if (OnSkillBtnPressed == null) {
-        return;
-      }
-
-      OnSkillBtnPressed(skillData);
-    });
+    btnComponent.onClick.AddListener(OnClick);
     btnBgImg.color = unclaimedColor;
     skillIconImg.sprite = skillData.Icon;
 
@@ -41,6 +35,14 @@ public class SkillBtn : MonoBehaviour {
 
   private void OnDestroy() {
     PlayerEvents.OnPlayerSkillsUpdated -= Evaluate;
+  }
+
+  private void OnClick() {
+    if (OnSkillBtnPressed == null) {
+      return;
+    }
+
+    OnSkillBtnPressed(skillData);
   }
 
   private void Evaluate(PlayerSkills playerSkills) {

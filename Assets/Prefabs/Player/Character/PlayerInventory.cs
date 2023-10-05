@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 
+[Serializable]
 public class InventoryItem {
   public ItemSO Item;
   public int Location;

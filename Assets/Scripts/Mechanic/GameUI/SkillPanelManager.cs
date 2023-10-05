@@ -9,8 +9,6 @@ public class SkillPanelManager : MonoBehaviour {
 
   [SerializeField] private TextMeshProUGUI jobText;
 
-  [SerializeField] private GameObject skillBtnPrefab;
-
   public bool IsOpen { get; private set; }
 
   void Start() {
