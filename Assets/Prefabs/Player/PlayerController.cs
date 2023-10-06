@@ -23,10 +23,18 @@ public class PlayerController : MonoBehaviour {
     characterManager = GetComponent<CharacterManager>();
 
     ControllerManager.OnBasicAttackPressed += BasicAttack;
+    ControllerManager.OnSkill1BtnPressed += () => SkillAttack(1);
+    ControllerManager.OnSkill2BtnPressed += () => SkillAttack(2);
+    ControllerManager.OnSkill3BtnPressed += () => SkillAttack(3);
+    ControllerManager.OnSkill4BtnPressed += () => SkillAttack(4);
   }
 
   private void OnDestroy() {
     ControllerManager.OnBasicAttackPressed -= BasicAttack;
+    ControllerManager.OnSkill1BtnPressed -= () => SkillAttack(1);
+    ControllerManager.OnSkill2BtnPressed -= () => SkillAttack(2);
+    ControllerManager.OnSkill3BtnPressed -= () => SkillAttack(3);
+    ControllerManager.OnSkill4BtnPressed -= () => SkillAttack(4);
   }
 
   // Update is called once per frame
@@ -132,7 +140,15 @@ public class PlayerController : MonoBehaviour {
       return;
     }
 
-    animController.DoBasicAttack();
+    animController.PerformBasicAttack();
+  }
+
+  void SkillAttack(int skill) {
+    if (!IsGrounded() || !animController.AttackMotionDone) {
+      return;
+    }
+
+    animController.PerformSkill(skill);
   }
 
   public bool IsGrounded() {

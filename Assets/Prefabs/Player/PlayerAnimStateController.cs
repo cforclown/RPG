@@ -15,7 +15,7 @@ public class PlayerAnimStateController : MonoBehaviour {
   private int isBasicAttack1Hash;
   private int isBasicAttack2Hash;
   private int isDeadHash;
-  private int isSkill1Hash;
+  private int isSkillHash;
 
   // animation state variables -----------------
   private bool isRunning = false;
@@ -54,12 +54,12 @@ public class PlayerAnimStateController : MonoBehaviour {
     }
   }
 
-  private bool isSkill1 = false;
-  public bool IsSkill1 {
-    get { return isSkill1; }
+  private int isSkill = 0;
+  public int IsSkill {
+    get { return isSkill; }
     private set {
-      isSkill1 = value;
-      animator.SetBool(isSkill1Hash, value);
+      isSkill = value;
+      animator.SetInteger(isSkillHash, value);
     }
   }
   // ------------------------------------------
@@ -79,7 +79,7 @@ public class PlayerAnimStateController : MonoBehaviour {
     isBasicAttack1Hash = Animator.StringToHash("IsBasicAttack1");
     isBasicAttack2Hash = Animator.StringToHash("IsBasicAttack2");
     isDeadHash = Animator.StringToHash("IsDead");
-    isSkill1Hash = Animator.StringToHash("IsSkill1");
+    isSkillHash = Animator.StringToHash("IsSkill");
 
     EquipmentPanelManager.OnEquipItemAction += OnEquippedItemRemoved;
   }
@@ -113,7 +113,7 @@ public class PlayerAnimStateController : MonoBehaviour {
     RunningMotionStarted = true;
   }
 
-  public void DoBasicAttack() {
+  public void PerformBasicAttack() {
     IsRunning = false;
     AttackMotionDone = false;
     RunningMotionStarted = false;
@@ -123,6 +123,13 @@ public class PlayerAnimStateController : MonoBehaviour {
     else {
       IsBasicAttack2 = true;
     }
+  }
+
+  public void PerformSkill(int skill) {
+    IsRunning = false;
+    AttackMotionDone = false;
+    RunningMotionStarted = false;
+    IsSkill = skill;
   }
 
   // Animation event
@@ -140,6 +147,7 @@ public class PlayerAnimStateController : MonoBehaviour {
   // Animation event
   private void OnAttackMotionDone() {
     AttackMotionDone = true;
+    IsSkill = 0;
   }
 
   public void AttackHit() {
