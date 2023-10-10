@@ -2,10 +2,10 @@ using System;
 using UnityEngine;
 
 public enum SkillTypes {
-  FirstSkill = 0,
-  SecondSkill = 1,
-  ThirdSkill = 2,
-  Ultimate = 3
+  FirstSkill = 1,
+  SecondSkill = 2,
+  ThirdSkill = 3,
+  Ultimate = 4
 }
 
 public enum SkillCategory {
@@ -30,6 +30,7 @@ public interface ISkill : ICloneable {
   public float DamageIncreasePerLevel { get; }  // percentage
   public int BaseDamage { get; }
   public int Damage { get; }
+  public float Cooldown { get; }
 
   public void LevelUp();
 }

@@ -7,8 +7,8 @@ public enum Genders {
 }
 
 public enum JobTypes {
-  Swordsman = 0,
-  Knight = 1,
+  Assassin = 0,
+  Warrior = 1,
   Spellcaster = 2
 }
 
@@ -21,7 +21,7 @@ public class Character {
   public int Level { get; private set; } = 1;
   public int Gold { get; private set; }
   public int StatsPoint { get; private set; }
-  public int SkillPoint { get; private set; }
+  public int SkillPoint { get; private set; } = 1;
   public int Exp { get; private set; }
 
   public int Strength { get; private set; }
@@ -132,19 +132,8 @@ public class Character {
   }
 
   public void LevelUp() {
-    StatsPoint += 1;
-  }
-
-  public void AddItem(InventoryItem inventoryItem) {
-    Inventory.AddItem(inventoryItem);
-  }
-
-  public void RemoveItem(InventoryItem inventoryItem) {
-    Inventory.RemoveItem(inventoryItem);
-  }
-
-  public void AcceptQuest(QuestSO quest) {
-    Quests.AddQuest(quest);
+    StatsPoint++;
+    SkillPoint++;
   }
 
   public void IncreaseStrength() {
@@ -175,6 +164,27 @@ public class Character {
     Intelligence += 1;
     StatsPoint -= 1;
     EvaluateStats();
+  }
+
+  public void AddItem(InventoryItem inventoryItem) {
+    Inventory.AddItem(inventoryItem);
+  }
+
+  public void RemoveItem(InventoryItem inventoryItem) {
+    Inventory.RemoveItem(inventoryItem);
+  }
+
+  public void AcceptQuest(QuestSO quest) {
+    Quests.AddQuest(quest);
+  }
+
+  public void ClaimSkill(SkillSO skill) {
+    if (SkillPoint <= 0) {
+      return;
+    }
+
+    Skills.AddSkill(skill);
+    SkillPoint -= 1;
   }
 
   private void EvaluateStats() {

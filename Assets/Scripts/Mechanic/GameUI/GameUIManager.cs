@@ -42,9 +42,15 @@ public class GameUIManager : MonoBehaviour {
     Canvas.planeDistance = 0.5f;
     Canvas.worldCamera = Camera.main;
 
-    CombatEvents.OnEnemyHitPlayer += (Enemy enemy, Character player) => DisplayGetHitIndicator();
+    CombatEvents.OnEnemyAttackHitPlayer += (CharacterManager player, Enemy enemy, WeaponSO weapon) => DisplayGetHitIndicator();
     NPCEvents.OnNPCInteractionStarted += (NPC npc) => { IsHide = true; };
     NPCEvents.OnNPCInteractionEnded += (NPC npc) => { IsHide = false; };
+  }
+
+  private void OnDestroy() {
+    CombatEvents.OnEnemyAttackHitPlayer -= (CharacterManager player, Enemy enemy, WeaponSO weapon) => DisplayGetHitIndicator();
+    NPCEvents.OnNPCInteractionStarted -= (NPC npc) => { IsHide = true; };
+    NPCEvents.OnNPCInteractionEnded -= (NPC npc) => { IsHide = false; };
   }
 
   public RectTransform GetRectTransform() {

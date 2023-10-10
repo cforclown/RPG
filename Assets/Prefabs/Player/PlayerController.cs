@@ -5,10 +5,9 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour {
   private CharacterManager characterManager;
 
-  private Rigidbody rb;
   private CapsuleCollider physicCollider;
 
-  private PlayerAnimStateController animController;
+  private PlayerAnimController animController;
   private PlayerInput playerInput;
 
   private const float TURN_SPD = 25.0f;
@@ -16,25 +15,18 @@ public class PlayerController : MonoBehaviour {
   private NPC moveToNPCAndInteract = null;
 
   private void Awake() {
-    rb = GetComponent<Rigidbody>();
     physicCollider = GetComponent<CapsuleCollider>();
-    animController = GetComponent<PlayerAnimStateController>();
+    animController = GetComponent<PlayerAnimController>();
     playerInput = GetComponent<PlayerInput>();
     characterManager = GetComponent<CharacterManager>();
 
-    ControllerManager.OnBasicAttackPressed += BasicAttack;
-    ControllerManager.OnSkill1BtnPressed += () => SkillAttack(1);
-    ControllerManager.OnSkill2BtnPressed += () => SkillAttack(2);
-    ControllerManager.OnSkill3BtnPressed += () => SkillAttack(3);
-    ControllerManager.OnSkill4BtnPressed += () => SkillAttack(4);
+    ControllerManager.OnBasicAttackPressed += PerformAttack;
+    ControllerManager.OnSkillBtnPressed += PerformAttack;
   }
 
   private void OnDestroy() {
-    ControllerManager.OnBasicAttackPressed -= BasicAttack;
-    ControllerManager.OnSkill1BtnPressed -= () => SkillAttack(1);
-    ControllerManager.OnSkill2BtnPressed -= () => SkillAttack(2);
-    ControllerManager.OnSkill3BtnPressed -= () => SkillAttack(3);
-    ControllerManager.OnSkill4BtnPressed -= () => SkillAttack(4);
+    ControllerManager.OnBasicAttackPressed -= PerformAttack;
+    ControllerManager.OnSkillBtnPressed -= PerformAttack;
   }
 
   // Update is called once per frame
@@ -79,7 +71,7 @@ public class PlayerController : MonoBehaviour {
   }
 
   void Movement() {
-    if (!animController.AttackMotionDone) {
+    if (!animController.AttackMotionFinished) {
       return;
     }
 
@@ -135,23 +127,32 @@ public class PlayerController : MonoBehaviour {
     }
   }
 
-  void BasicAttack() {
-    if (!IsGrounded() || !animController.AttackMotionDone) {
+  private void PerformAttack(SkillSO skill) {
+    if (skill == null) {
+      BasicAttack();
+      return;
+    }
+
+    SkillAttack(skill.SkillType);
+  }
+
+  private void BasicAttack() {
+    if (!IsGrounded() || !animController.AttackMotionFinished) {
       return;
     }
 
     animController.PerformBasicAttack();
   }
 
-  void SkillAttack(int skill) {
-    if (!IsGrounded() || !animController.AttackMotionDone) {
+  private void SkillAttack(SkillTypes skillType) {
+    if (!IsGrounded() || !animController.AttackMotionFinished) {
       return;
     }
 
-    animController.PerformSkill(skill);
+    animController.PerformSkill(skillType);
   }
 
-  public bool IsGrounded() {
+  private bool IsGrounded() {
     return GroundCheck();
   }
 

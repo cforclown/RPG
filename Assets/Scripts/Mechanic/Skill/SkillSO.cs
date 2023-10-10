@@ -20,6 +20,8 @@ public class SkillSO : ScriptableObject, ISkill {
   [field: SerializeField] public int BaseDamage { get; private set; }
   [HideInInspector] public int Damage { get; private set; } = 0;
 
+  [field: SerializeField] public float Cooldown { get; private set; } = 1f;
+
   public void LevelUp() {
     if (Level >= SKILL_MAX_LEVEL) {
       return;

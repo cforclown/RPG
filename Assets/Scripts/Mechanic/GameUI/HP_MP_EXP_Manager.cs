@@ -20,8 +20,13 @@ public class HP_MP_EXP_Manager : MonoBehaviour {
       containerWidth = RectTransformUtility.PixelAdjustRect(rt, GameUIManager.I.GetCanvas()).width;
     }
 
-    CombatEvents.OnEnemyHitPlayer += (Enemy enemy, Character player) => EvaluateBars(player);
+    CombatEvents.OnPostEnemyAttackHitPlayer += (CharacterManager player, Enemy enemy, WeaponSO weapon) => EvaluateBars(player.Stats);
     PlayerEvents.OnPlayerStatsUpdated += EvaluateBars;
+  }
+
+  private void OnDestroy() {
+    CombatEvents.OnPostEnemyAttackHitPlayer -= (CharacterManager player, Enemy enemy, WeaponSO weapon) => EvaluateBars(player.Stats);
+    PlayerEvents.OnPlayerStatsUpdated -= EvaluateBars;
   }
 
   private void Update() {

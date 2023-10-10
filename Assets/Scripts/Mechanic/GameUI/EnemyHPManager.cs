@@ -22,19 +22,15 @@ public class EnemyHPManager : MonoBehaviour {
       containerWidth = RectTransformUtility.PixelAdjustRect(rt, GameUIManager.I.GetCanvas()).width;
     }
 
-    CombatEvents.OnEnemyHitPlayer += (Enemy enemy, Character player) => {
-      // if already showed, that mean the hp bar is for enemy that player hit
-      // if we call function Show(), it will replaced hp bar for enemy that hit the player, we dont want that
-      // because we prioritize hp bar for enemy that player hit
-      if (IsShow) {
-        return;
-      }
-
-      Show(enemy);
-    };
-    CombatEvents.OnPlayerHitEnemy += Show;
+    CombatEvents.OnPostEnemyAttackHitPlayer += OnPostEnemyAttackHitPlayerEvent;
+    CombatEvents.OnPostPlayerAttackHitEnemy += OnPostPlayerAttackHitEnemyEvent;
 
     Hide();
+  }
+
+  private void OnDestroy() {
+    CombatEvents.OnPostEnemyAttackHitPlayer -= OnPostEnemyAttackHitPlayerEvent;
+    CombatEvents.OnPostPlayerAttackHitEnemy -= OnPostPlayerAttackHitEnemyEvent;
   }
 
   private void Update() {
@@ -49,6 +45,19 @@ public class EnemyHPManager : MonoBehaviour {
       showTimeCounter += Time.deltaTime;
     }
   }
+
+  private void OnPostEnemyAttackHitPlayerEvent(CharacterManager player, Enemy enemy, WeaponSO weapon) {
+    // if already showed, that means the hp bar is for enemy that player hit
+    // if we call function Show(), it will replaced hp bar for enemy that hit the player, we dont want that
+    // because we prioritize hp bar for enemy that player hit
+    if (IsShow) {
+      return;
+    }
+
+    Show(enemy);
+  }
+
+  private void OnPostPlayerAttackHitEnemyEvent(CharacterManager player, Enemy enemy, WeaponSO weapon) => Show(enemy);
 
   private void Show(Enemy enemy) {
     Set(enemy.Stats);

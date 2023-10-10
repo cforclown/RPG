@@ -11,7 +11,15 @@ public class SkillPanelManager : MonoBehaviour {
 
   public bool IsOpen { get; private set; }
 
-  void Start() {
+  private void Awake() {
+    PlayerEvents.OnPlayerStatsUpdated += OnPlayerStatsUpdatedEvent;
+  }
+
+  private void OnDestroy() {
+    PlayerEvents.OnPlayerStatsUpdated -= OnPlayerStatsUpdatedEvent;
+  }
+
+  private void Start() {
     popupBtn.onClick.AddListener(() => {
       if (IsOpen) {
         Close();
@@ -43,7 +51,7 @@ public class SkillPanelManager : MonoBehaviour {
 
     IsOpen = true;
     container.gameObject.SetActive(true);
-    Init(Player.I.Character.Stats);
+    OnPlayerStatsUpdatedEvent(Player.I.Character.Stats);
   }
 
   private void Close() {
@@ -51,15 +59,15 @@ public class SkillPanelManager : MonoBehaviour {
     container.gameObject.SetActive(false);
   }
 
-  private void Init(Character character) {
-    jobText.text = string.Format("{0} {1}", GetJobName(character.Job), character.SkillPoint > 0 ? string.Format("({0})", character.SkillPoint) : "");
+  private void OnPlayerStatsUpdatedEvent(Character player) {
+    jobText.text = string.Format("{0} {1}", GetJobName(player.Job), player.SkillPoint > 0 ? string.Format("({0})", player.SkillPoint) : "");
   }
 
   private string GetJobName(JobTypes job) {
     switch (job) {
-      case JobTypes.Swordsman:
+      case JobTypes.Assassin:
         return "Swordsman";
-      case JobTypes.Knight:
+      case JobTypes.Warrior:
         return "Knight";
       case JobTypes.Spellcaster:
         return "Spellcaster";

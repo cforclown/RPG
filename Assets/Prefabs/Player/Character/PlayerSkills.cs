@@ -10,4 +10,8 @@ public class PlayerSkills {
   public PlayerSkills(List<SkillSO> skills) {
     Skills = skills;
   }
+
+  public void AddSkill(SkillSO skill) {
+    Skills.Add(skill);
+  }
 }

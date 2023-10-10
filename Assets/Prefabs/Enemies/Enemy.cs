@@ -21,6 +21,10 @@ public class Enemy : MonoBehaviour {
 
   private bool isDead = false;
 
+  private void Awake() {
+    CombatEvents.OnPlayerAttackHitEnemy += OnPlayerAttackHitEnemyEvent;
+  }
+
   void Start() {
     animController = GetComponent<EnemyAnimStateController>();
 
@@ -107,6 +111,7 @@ public class Enemy : MonoBehaviour {
   void OnDestroy() {
     StopCoroutine(HPRegenCoroutine());
     StopCoroutine(MPRegenCoroutine());
+    CombatEvents.OnPlayerAttackHitEnemy -= OnPlayerAttackHitEnemyEvent;
   }
 
   public void Init(EnemySO stat) {
@@ -115,6 +120,9 @@ public class Enemy : MonoBehaviour {
     StartCoroutine(MPRegenCoroutine());
   }
 
+
+
+  #region MOVEMENTS
   private void Patrol() {
     // if far away, walk to spawn point
     if (
@@ -183,11 +191,22 @@ public class Enemy : MonoBehaviour {
   private void Move(Vector3 toward, bool walking = false) {
     transform.Translate(toward * (walking ? Stats.WalkSpd : Stats.MvSpd) * Time.deltaTime, Space.World);
   }
+  #endregion
 
-  public void GetHit(int damage) {
-    Stats.GetHit(damage);
-    CombatEvents.PlayerHitEnemy(this);
-    CombatEvents.AttackHit(transform, damage);
+
+
+  #region COMBAT EVENTs
+  public void OnPlayerAttackHitEnemyEvent(CharacterManager player, Enemy enemy, WeaponSO weapon) {
+    if (enemy.Stats.Id != Stats.Id) {
+      return;
+    }
+
+    GetHit(player, enemy, weapon);
+  }
+
+  public void GetHit(CharacterManager player, Enemy enemy, WeaponSO weapon) {
+    Stats.GetHit(player.GetDamageOutput(this, weapon));
+    CombatEvents.PostPlayerAttackHitEnemyEvent(player, enemy, weapon);
     if (Stats.HP <= 0) {
       isDead = true;
       animController.Dead();
@@ -195,7 +214,11 @@ public class Enemy : MonoBehaviour {
       CombatEvents.EnemyDied(this);
     }
   }
+  #endregion
 
+
+
+  #region TASKs
   private IEnumerator HPRegenCoroutine() {
     while (Stats.HP > 0) {
       yield return new WaitForSeconds(0.0001f);
@@ -222,4 +245,5 @@ public class Enemy : MonoBehaviour {
     yield return new WaitForSeconds(5f);
     Destroy(gameObject);
   }
+  #endregion
 }
