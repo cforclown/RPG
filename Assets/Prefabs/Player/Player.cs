@@ -4,12 +4,14 @@ public class Player : MonoBehaviour {
   public static Player I;
 
   public PlayerController Controller { get; private set; }
+  public PlayerAnimController AnimController { get; private set; }
   public CharacterManager Character { get; private set; }
 
   void Awake() {
     I = this;
 
     Controller = GetComponent<PlayerController>();
+    AnimController = GetComponent<PlayerAnimController>();
     Character = GetComponent<CharacterManager>();
   }
 

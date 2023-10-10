@@ -6,7 +6,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class CharacterManager : MonoBehaviour {
-  private PlayerAnimStateController animController;
+  public PlayerAnimController AnimController { get; private set; }
 
   [SerializeField] private NoWeaponCollider rightHandAttackCollider;
   [SerializeField] private NoWeaponCollider leftHandAttackColliderl;
@@ -31,7 +31,7 @@ public class CharacterManager : MonoBehaviour {
 
 
   private void Awake() {
-    animController = GetComponent<PlayerAnimStateController>();
+    AnimController = GetComponent<PlayerAnimController>();
 
     placeholders = new List<Transform>(11) {
       headArmorEquipParent,
@@ -52,31 +52,39 @@ public class CharacterManager : MonoBehaviour {
     StartCoroutine(HPRegenCoroutine());
     StartCoroutine(MPRegenCoroutine());
 
-    rightHandAttackCollider.Init(OnAttackHit);
-    leftHandAttackColliderl.Init(OnAttackHit);
+    rightHandAttackCollider.Init((Collider collider) => OnAttackHit(collider));
+    leftHandAttackColliderl.Init((Collider collider) => OnAttackHit(collider));
 
-    CombatEvents.OnEnemyDeath += CombatEventsOnKillingEnemy;
     NPCEvents.OnPlayerAcceptNPCQuest += OnQuestAccepted;
-    QuestEvents.OnQuestFinished += OnQuestDone;
-    SkillBtn.OnSkillBtnPressed += ClaimSkill;
+    QuestEvents.OnQuestFinished += OnQuestFinished;
+    SkillPanelBtn.OnSkillPanelBtnPressed += ClaimSkill;
     InventoryPanelManager.OnAddItemAction += AddItem;
     InventoryPanelManager.OnRemoveItemAction += RemoveItem;
     EquipmentPanelManager.OnEquipItemAction += EquipItem;
     EquipmentPanelManager.OnUnequipItemAction += UnequipItem;
+    CombatEvents.OnEnemyAttackHitPlayer += GetHit;
+    CombatEvents.OnEnemyDeath += OnEnemyKilledEvent;
+    PlayerEvents.OnIncreaseStrengthAction += IncreaseStrength;
+    PlayerEvents.OnIncreaseAgilityAction += IncreaseAgility;
+    PlayerEvents.OnIncreaseIntelligenceAction += IncreaseIntelligence;
   }
 
   private void OnDestroy() {
     StopCoroutine(HPRegenCoroutine());
     StopCoroutine(MPRegenCoroutine());
 
-    CombatEvents.OnEnemyDeath -= CombatEventsOnKillingEnemy;
     NPCEvents.OnPlayerAcceptNPCQuest -= OnQuestAccepted;
-    QuestEvents.OnQuestFinished -= OnQuestDone;
-    SkillBtn.OnSkillBtnPressed -= ClaimSkill;
+    QuestEvents.OnQuestFinished -= OnQuestFinished;
+    SkillPanelBtn.OnSkillPanelBtnPressed -= ClaimSkill;
     InventoryPanelManager.OnAddItemAction -= AddItem;
     InventoryPanelManager.OnRemoveItemAction -= RemoveItem;
     EquipmentPanelManager.OnEquipItemAction -= EquipItem;
     EquipmentPanelManager.OnUnequipItemAction -= UnequipItem;
+    CombatEvents.OnEnemyAttackHitPlayer -= GetHit;
+    CombatEvents.OnEnemyDeath -= OnEnemyKilledEvent;
+    PlayerEvents.OnIncreaseStrengthAction -= IncreaseStrength;
+    PlayerEvents.OnIncreaseAgilityAction -= IncreaseAgility;
+    PlayerEvents.OnIncreaseIntelligenceAction -= IncreaseIntelligence;
   }
 
   public void Init(Character player) {
@@ -87,6 +95,7 @@ public class CharacterManager : MonoBehaviour {
     PlayerEvents.PlayerSkillsUpdated(player.Skills);
   }
 
+  #region STATS MUTATION
   private void HealHP(int heal) {
     Stats.HealHP(heal);
     PlayerEvents.PlayerStatsUpdated(Stats);
@@ -112,32 +121,6 @@ public class CharacterManager : MonoBehaviour {
     PlayerEvents.PlayerStatsUpdated(Stats);
   }
 
-
-
-  private void OnQuestAccepted(NPC npc) {
-    Stats.Quests.AddQuest(npc.data.Quest);
-  }
-
-  private void OnQuestDone(QuestSO quest) {
-    GrantExp(quest.ExpReward);
-    Stats.Quests.RemoveQuest(quest);
-  }
-
-
-
-
-  private void ClaimSkill(SkillSO skill) {
-    SkillSO currentSkill = Stats.Skills.Skills.Find(s => s.Id == skill.Id);
-    if (currentSkill == null) {
-      currentSkill = skill.Clone();
-      Stats.Skills.Skills.Add(currentSkill);
-    }
-    currentSkill.LevelUp();
-    PlayerEvents.PlayerSkillsUpdated(Stats.Skills);
-  }
-
-
-
   public void IncreaseStrength() {
     Stats.IncreaseStrength();
     PlayerEvents.PlayerStatsUpdated(Stats);
@@ -152,23 +135,58 @@ public class CharacterManager : MonoBehaviour {
     Stats.IncreaseIntelligence();
     PlayerEvents.PlayerStatsUpdated(Stats);
   }
+  #endregion
 
 
 
-  private void CombatEventsOnKillingEnemy(Enemy enemy) => GrantExp(enemy.Stats.KilledExp);
+  #region QUESTs
+  private void OnQuestAccepted(NPC npc) {
+    Stats.Quests.AddQuest(npc.data.Quest);
+  }
 
-  private void GetHit(Enemy enemy) {
-    int rawDamage = enemy.Stats.Damage;
-    // TODO calculate damage against armor
+  private void OnQuestFinished(QuestSO quest) {
+    GrantExp(quest.ExpReward);
+    Stats.Quests.RemoveQuest(quest);
+  }
+  #endregion
 
-    Stats.GetHit(rawDamage);
-    if (Stats.HP <= 0) {
-      animController.Dead();
-      GameManager.I.Respawn();
+
+
+  #region SKILL RELATED METHODS
+  private void ClaimSkill(SkillSO skill) {
+    SkillSO currentSkill = Stats.Skills.Skills.Find(s => s.Id == skill.Id);
+    if (currentSkill == null) {
+      currentSkill = skill.Clone();
+      Stats.ClaimSkill(currentSkill);
+    }
+    currentSkill.LevelUp();
+    PlayerEvents.PlayerSkillsUpdated(Stats.Skills);
+    PlayerEvents.PlayerStatsUpdated(Stats);
+  }
+  public SkillSO GetPerformedSkill() {
+    if (AnimController.IsSkill == 0) {
+      return null;
     }
 
-    CombatEvents.AttackHit(transform, rawDamage);
-    CombatEvents.EnemyHitPlayer(enemy, Stats);
+    return Stats.Skills.Skills.Find(s => s.SkillType == (SkillTypes)AnimController.IsSkill);
+  }
+  #endregion
+
+
+
+  #region COMBAT
+  private void OnEnemyKilledEvent(Enemy enemy) => GrantExp(enemy.Stats.KilledExp);
+
+  private void GetHit(CharacterManager player, Enemy enemy, WeaponSO weapon) {
+    // TODO calculate enemy damage against player armor
+    int damage = enemy.Stats.Damage;
+
+    Stats.GetHit(damage);
+    CombatEvents.PostEnemyAttackHitPlayerEvent(this, enemy, weapon);
+    if (Stats.HP <= 0) {
+      AnimController.Dead();
+      GameManager.I.Respawn();
+    }
   }
 
   private void OnTriggerEnter(Collider collider) {
@@ -190,57 +208,70 @@ public class CharacterManager : MonoBehaviour {
     }
 
     enemyAttackCollider.AttackLanded();
-    GetHit(enemyAttackCollider.controller);
+    CombatEvents.EnemyAttackHitPlayerEvent(this, enemyAttackCollider.controller, null);
   }
 
-  private void OnAttackHit(Collider collider) {
+  private void OnAttackHit(Collider collider, WeaponSO weapon = null) {
     GameObject collideObj = collider.gameObject;
     if (collideObj == null) {
       return;
     }
-    Enemy enemyController = collider.GetComponent<Enemy>();
-    if (enemyController == null) {
+    Enemy enemy = collider.GetComponent<Enemy>();
+    if (enemy == null) {
       return;
     }
+
     if (
-      animController.IsAttackHit ||
-      enemyController.Stats.HP <= 0
+      !AnimController.IsAttackLaunched ||
+      enemy.Stats.HP <= 0
     ) {
       return;
     }
 
-    animController.AttackHit();
+    if (AnimController.IsSkill == 0) {
+      AnimController.BasicAttackHit();
+    }
+    else if (SkillCalculator.CheckHitEnemy(enemy)) {
+      return;
+    }
 
-    // TODO calculate damage againts enemy armor
-    int damage = Stats.UnarmedDamage;
-    enemyController.GetHit(damage);
+    CombatEvents.PlayerAttackHitEnemyEvent(this, enemy, weapon);
   }
 
-  private void OnMeleeWeaponHit(Collider collider, WeaponSO weapon) {
-    GameObject collideObj = collider.gameObject;
-    if (collideObj == null) {
-      return;
+  public int GetDamageOutput(Enemy enemy, WeaponSO weapon = null) {
+    int damage = 0;
+    if (weapon == null) {
+      damage = Stats.UnarmedDamage;
     }
-    Enemy enemyController = collider.GetComponent<Enemy>();
-    if (enemyController == null) {
-      return;
+    else if (AnimController.IsSkill != 0) {
+      SkillSO skill = Stats.Skills.Skills.Find(s => s.SkillType == (SkillTypes)AnimController.IsSkill);
+      if (skill == null) {
+        damage = GetWeaponDamage(weapon);
+      }
+      else {
+        damage = skill.Damage;
+      }
     }
-    if (
-      animController.IsAttackHit ||
-      enemyController.Stats.HP <= 0
-    ) {
-      return;
+    else {
+      damage = GetWeaponDamage(weapon);
     }
 
-    animController.AttackHit();
-
-    // TODO calculate damage againts enemy armor
-    int damage = Generator.RandomInt(weapon.MinDamage, weapon.MaxDamage);
-    enemyController.GetHit(damage);
+    return CalculateDamage(damage, enemy);
   }
 
+  private int GetWeaponDamage(WeaponSO weapon) {
+    return Generator.RandomInt(weapon.MinDamage, weapon.MaxDamage);
+  }
+
+  private int CalculateDamage(int playerDmg, Enemy enemy) {
+    // TODO calculate player damage against enemy armor
+    return playerDmg;
+  }
+  #endregion
 
 
+
+  #region INVENTORY EVENTs
   public void AddItem(InventoryItem item) {
     Stats.AddItem(item);
     PlayerEvents.PlayerInventoryUpdated(Stats.Inventory);
@@ -250,7 +281,11 @@ public class CharacterManager : MonoBehaviour {
     Stats.RemoveItem(item);
     PlayerEvents.PlayerInventoryUpdated(Stats.Inventory);
   }
+  #endregion
 
+
+
+  #region EQUIPMENT EVENTs
   public void InitEquipments(PlayerEquipment equipments) {
     if (equipments.HeadArmor != null) {
       EquipItem(equipments.HeadArmor, EquipmentPlaceholderTypes.HEAD_ARMOR);
@@ -304,7 +339,7 @@ public class CharacterManager : MonoBehaviour {
     ) {
       rightHandAttackCollider.Disable();
       leftHandAttackColliderl.Disable();
-      GetComponent<PlayerAnimStateController>().OneHandedWeaponStyle();
+      GetComponent<PlayerAnimController>().OneHandedWeaponStyle();
     }
 
     // Instantiate item prefab
@@ -330,7 +365,7 @@ public class CharacterManager : MonoBehaviour {
     ) {
       rightHandAttackCollider.Enable();
       leftHandAttackColliderl.Enable();
-      GetComponent<PlayerAnimStateController>().NoWeaponStyle();
+      GetComponent<PlayerAnimController>().NoWeaponStyle();
     }
 
     Stats.Equipment.UnequipItem(placeholderType);
@@ -377,7 +412,7 @@ public class CharacterManager : MonoBehaviour {
     itemObj.name = item.Id;
     WeaponMono<WeaponSO> itemMono = itemObj.GetComponent<WeaponMono<WeaponSO>>();
     if (item.Type == ItemTypes.WEAPON && weaponData.WeaponType == WeaponTypes.MELEE) {
-      itemMono.Init(weaponData, OnMeleeWeaponHit);
+      itemMono.Init(weaponData, OnAttackHit);
     }
     else {
       itemMono.Init(weaponData);
@@ -471,7 +506,11 @@ public class CharacterManager : MonoBehaviour {
     }
     Destroy(leftShoulderArmor.gameObject);
   }
+  #endregion
 
+
+
+  #region TASKs
   private IEnumerator HPRegenCoroutine() {
     while (Stats.HP > 0) {
       yield return new WaitForSeconds(0.0001f);
@@ -500,4 +539,5 @@ public class CharacterManager : MonoBehaviour {
     yield return new WaitForSeconds(levelUpParticle.main.duration + 1f);
     levelUpParticle.gameObject.SetActive(false);
   }
+  #endregion
 }
